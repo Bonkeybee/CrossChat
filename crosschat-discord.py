@@ -21,9 +21,9 @@ import time
 
 
 TOKEN = config['discord']['TOKEN']
-ADMIN_ID = config['discord']['ADMIN_ID']
-LOG_CHANNEL_ID = config['discord']['LOG_CHANNEL_ID']
-CROSSCHAT_CHANNEL_ID = config['discord']['CROSSCHAT_CHANNEL_ID']
+ADMIN_ID = int(config['discord']['ADMIN_ID'])
+LOG_CHANNEL_ID = int(config['discord']['LOG_CHANNEL_ID'])
+CROSSCHAT_CHANNEL_ID = int(config['discord']['CROSSCHAT_CHANNEL_ID'])
 
 MENTION_PATTERN = re.compile('<@.+>')
 AHK_PATTERN = re.compile('{.*}')
@@ -58,9 +58,9 @@ async def on_message(message):
             line = ("("+name+"): "+message.content).encode("LATIN-1", "ignore").decode()
             if line:
                 try:
+                    print('sent: ' + line)
                     fout = open('crosschat.txt', 'a+')
                     fout.write(line + '\n')
-                    print('sent: ' + line)
                 except:
                     await message.channel.send(f'ERROR: {message.author.name}, your message was not sent.')
 

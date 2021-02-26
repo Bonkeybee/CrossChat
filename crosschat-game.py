@@ -41,7 +41,7 @@ class Message:
         return self.timestamp < other.timestamp
     def toString(self):
         readableTimestamp = time.strftime('%I:%M:%S %p', time.gmtime(float(self.timestamp)-18000))
-        return ("["+readableTimestamp+"] ["+self.player+"]: "+self.message).encode("LATIN-1", "ignore").decode("UTF-8")
+        return ("`["+readableTimestamp+"]` ["+self.player+"]: "+self.message).encode("LATIN-1", "ignore").decode("UTF-8")
 
 
 def initialize():

@@ -29,6 +29,11 @@ local function onEvent(_, event, message, author)
     if (not GUILDCHATLOG) then
       GUILDCHATLOG = {}
     end
+    for timestamp,data in pairs(GUILDCHATLOG) do
+      if ((timestamp + 21600) < GetTimestamp()) then
+        GUILDCHATLOG[timestamp] = nil
+      end
+    end
     GUILDCHATLOG[GetTimestamp()] = {name, message}
   end
 end

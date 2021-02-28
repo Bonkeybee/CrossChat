@@ -125,6 +125,6 @@ return
 	main(false) ;CTRL-E to relog
 return
 ^r::
-	Run, git-pull.py
+	Run, git-pull.py ;Pull the latest from the repository
 	Reload ;CTRL-R to reload the script
 return

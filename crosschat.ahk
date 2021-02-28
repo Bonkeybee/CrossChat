@@ -4,7 +4,7 @@ SetKeyDelay, 100, 100
 
 
 sleep(min, max*) {
-	if (!max[1]) {
+	if not max[1] {
 		Random, randsleep, min, min+1000
 		Sleep, %randsleep%
 	} else {
@@ -13,21 +13,54 @@ sleep(min, max*) {
 	}
 }
 
-launch() {
-	WinClose, crosschat-discord
-	WinClose, crosschat-game
-	WinClose, World of Warcraft
-	WinWaitClose, crosschat-discord
-	WinWaitClose, crosschat-game
-	WinWaitClose, World Of Warcraft
+close() {
+	didclose := false
+	Loop {
+		if WinExist(crosschat-discord) {
+			WinClose, crosschat-discord
+			WinWaitClose, crosschat-discord
+			didclose := true
+		}
+		if WinExist(crosschat-game) {
+			WinClose, crosschat-game
+			WinWaitClose, crosschat-game
+			didclose := true
+		}
+		if WinExist(World Of Warcraft) {
+			WinClose, World of Warcraft
+			WinWaitClose, World Of Warcraft
+			didclose := true
+		}
+		sleep(1000)
+	} Until not didclose
+}
 
-	Run, crosschat-discord.py
-	Run, crosschat-game.py
-	IniRead, gamepath, config.ini, wow, GAME_PATH
-	Run, %gamepath%
-	WinWait, crosschat-discord
-	WinWait, crosschat-game
-	WinWait, World of Warcraft
+open() {
+	didopen := false
+	Loop {
+		if not WinExist(crosschat-discord) {
+			Run, crosschat-discord.py
+			WinWait, crosschat-discord
+			didopen := true
+		}
+		if not WinExist(crosschat-game) {
+			Run, crosschat-game.py
+			WinWait, crosschat-game
+			didopen := true
+		}
+		if not WinExist(World Of Warcraft) {
+			IniRead, gamepath, config.ini, wow, GAME_PATH
+			Run, %gamepath%
+			WinWait, World of Warcraft
+			didopen := true
+		}
+		sleep(1000)
+	} Until not didopen
+}
+
+launch() {
+	close()
+	open()
 	sleep(3000) ;Wait for programs to open
 }
 
@@ -70,7 +103,7 @@ crosschat() {
 }
 
 main(login) {
-	If (login)
+	if login
 	{
 		login()  ;Login to the game
 	}

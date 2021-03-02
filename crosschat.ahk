@@ -63,7 +63,7 @@ launch() {
 }
 
 login() {
-	launch() ;Close and relaunch the processes
+	launch() ;Close and open the processes
 	IniRead, password, config.ini, wow, PASSWORD
 	ControlSendRaw,, %password%, World of Warcraft
 	ControlSend,, {Enter}, World of Warcraft
@@ -115,16 +115,16 @@ main(login) {
 	}
 }
 
-^Esc::
+^Esc:: ;CTRL-ESC
 	Pause
 return
-^q::
-	main(true) ;CTRL-Q to close, relaunch, and login
+^q:: ;CTRL-Q
+	main(true) ;Close, open, and login
 return
-^e::
-	main(false) ;CTRL-E to relog
+^e:: ;CTRL-E
+	main(false) ;Restarts reload loop
 return
-^r::
-	Run, git-pull.py ;Pull the latest from the repository
-	Reload ;CTRL-R to reload the script
+^r:: ;CTRL-R
+	Run, git-pull.py ;Pulls the latest from the repository
+	Reload ;Reloads the script
 return

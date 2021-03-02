@@ -25,8 +25,7 @@ TIMESTAMP_FILE = 'lastTimestamp.txt'
 WEBHOOK_URL = config['discord']['WEBHOOK_URL']
 
 ITEM_REPLACE_REGEX = '\|(.+Hitem:([0-9]+).+)\|r'
-ITEM_REGEX = '.*' + ITEM_REPLACE_REGEX + '.*'
-ITEM_PATTERN = re.compile(ITEM_REGEX)
+ITEM_PATTERN = re.compile('.*' + ITEM_REPLACE_REGEX + '.*')
 WOWHEAD_ITEM_URL = 'https://classic.wowhead.com/item='
 
 lastTimestamp = 0
@@ -55,9 +54,14 @@ def saveState():
     fout = open(TIMESTAMP_FILE, 'w')
     fout.write(str(lastTimestamp))
 
-def replaceItemPattern(message):
-    match = ITEM_PATTERN.match(message)
-    if match:
+def escapeSequences(message):
+    if '*' in message:
+        print('### mutating: ' + message)
+        message = message.replace('*', '\*')
+    return message
+
+def replaceItemPatterns(message):
+    if ITEM_PATTERN.match(message):
         print('### mutating: ' + message)
         splitMessage = message.split('|r')
         message = ''
@@ -70,6 +74,9 @@ def replaceItemPattern(message):
             else:
                 message = message + split
     return message
+
+def scrubMessage(message):
+    return replaceItemPatterns(escapeSequences(message))
 
 def parseChatlog(index, chatlog):
     timestamp = chatlog[index].split('[')[1].split(']')[0]
@@ -92,7 +99,7 @@ def addMessage(messages, timestamp, player, message):
     global lastTimestamp
     message = Message(timestamp, player, message)
     if isNewMessage(message) and doesNotContainMentions(message):
-        message.message = replaceItemPattern(message.message)
+        message.message = scrubMessage(message.message)
         messages.append(message)
 
 def bulkify(i, j, messages):

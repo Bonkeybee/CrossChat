@@ -6,7 +6,7 @@ from tendo import singleton
 me = singleton.SingleInstance()
 
 import logging
-logging.basicConfig(filename='errors.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(message)s')
+logging.basicConfig(filename='errors.log', level=logging.INFO, format='%(asctime)s %(levelname)s %(name)s %(message)s')
 LOG=logging.getLogger(__name__)
 
 import configparser

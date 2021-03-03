@@ -13,17 +13,19 @@ sleep(min, max*) {
 	}
 }
 
-close() {
+close(all) {
 	Loop {
 		didclose = false
-		;if WinExist("crosschat-discord") {
-		;	WinClose, crosschat-discord
-		;	didclose = true
-		;}
-		;if WinExist("crosschat-game") {
-		;	WinClose, crosschat-game
-		;	didclose = true
-		;}
+		if all {
+			if WinExist("crosschat-discord") {
+				WinClose, crosschat-discord
+				didclose = true
+			}
+			if WinExist("crosschat-game") {
+				WinClose, crosschat-game
+				didclose = true
+			}
+		}
 		if WinExist("World of Warcraft") {
 			WinClose, World of Warcraft
 			didclose = true
@@ -120,7 +122,8 @@ main(login) {
 	Pause
 return
 ^q:: ;CTRL-Q
-	main(true) ;Close, open, and login
+	close(true) ;Close
+	main(true) ;Open and login
 return
 ^e:: ;CTRL-E
 	main(false) ;Restarts reload loop

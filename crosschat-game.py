@@ -1,3 +1,4 @@
+################################### IMPORTS ####################################
 from os import system
 system('title ' + 'crosschat-game')
 
@@ -7,6 +8,8 @@ me = singleton.SingleInstance()
 import configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
+CHATLOG_FILE = config['wow']['CHATLOG_FILE']
+WEBHOOK_URL = config['discord']['WEBHOOK_URL']
 
 from contextlib import suppress
 from datetime import datetime
@@ -17,18 +20,17 @@ import re
 import time
 import os
 
+import logging
+logging.basicConfig(filename='errors.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(message)s')
+LOG=logging.getLogger(__name__)
+
 ################################### GLOBALS ####################################
-
-CHATLOG_FILE = config['wow']['CHATLOG_FILE']
 TIMESTAMP_FILE = 'lastTimestamp.txt'
-
-WEBHOOK_URL = config['discord']['WEBHOOK_URL']
+lastTimestamp = 0
 
 ITEM_REPLACE_REGEX = '\|(.+Hitem:([0-9]+).+)\|r'
 ITEM_PATTERN = re.compile('.*' + ITEM_REPLACE_REGEX + '.*')
 WOWHEAD_ITEM_URL = 'https://classic.wowhead.com/item='
-
-lastTimestamp = 0
 
 ################################## FUNCTIONS ###################################
 class Message:
@@ -41,7 +43,6 @@ class Message:
     def toString(self):
         readableTimestamp = time.strftime('%I:%M:%S %p', time.gmtime(float(self.timestamp)-18000))
         return ("`["+readableTimestamp+"]` ["+self.player+"]: "+self.message).encode("LATIN-1", "ignore").decode("UTF-8", "ignore")
-
 
 def initialize():
     global lastTimestamp
@@ -134,12 +135,13 @@ def loadChatlog():
     chatlog = None
     while chatlog is None:
         try:
-            with open(CHATLOG_FILE, 'r') as chatlogFile:
+            with open(CHATLOG_FILE, mode='r', encoding='LATIN-1') as chatlogFile:
                 chatlog = chatlogFile.readlines()
-        except:
+        except Exception as e:
+            LOG.error(e)
+            time.sleep(1)
             pass
     return chatlog
-
 
 ##################################### MAIN #####################################
 try:
@@ -160,6 +162,4 @@ try:
         pushAll(messages)
         time.sleep(1)
 except Exception as e:
-    print(e)
-    fout = open(datetime.now().strftime("%d-%m-%Y-%H-%M-%S.txt"), 'w')
-    fout.write(str(e))
+    LOG.error(e)

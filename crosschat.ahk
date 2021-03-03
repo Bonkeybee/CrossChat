@@ -31,7 +31,7 @@ close(all) {
 			didclose = true
 		}
 		if %didclose% {
-			sleep(1000)
+			sleep(2000)
 		}
 	} Until not %didclose%
 }
@@ -53,7 +53,7 @@ open() {
 			didopen = true
 		}
 		if %didopen% {
-			sleep(1000)
+			sleep(2000)
 		}
 	} Until not %didopen%
 }

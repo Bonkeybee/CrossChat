@@ -5,31 +5,32 @@ system('title ' + 'crosschat-game')
 from tendo import singleton
 me = singleton.SingleInstance()
 
+import logging
+logging.basicConfig(filename='errors.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(message)s')
+LOG=logging.getLogger(__name__)
+
 import configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
 CHATLOG_FILE = config['wow']['CHATLOG_FILE']
 WEBHOOK_URL = config['discord']['WEBHOOK_URL']
 
+import re
+ITEM_REPLACE_REGEX = '\|(.+Hitem:([0-9]+).+)\|r'
+ITEM_PATTERN = re.compile('.*' + ITEM_REPLACE_REGEX + '.*')
+
 from contextlib import suppress
 from datetime import datetime
 import json
 import operator
 import requests
-import re
 import time
 import os
-
-import logging
-logging.basicConfig(filename='errors.log', level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(message)s')
-LOG=logging.getLogger(__name__)
 
 ################################### GLOBALS ####################################
 TIMESTAMP_FILE = 'lastTimestamp.txt'
 lastTimestamp = 0
 
-ITEM_REPLACE_REGEX = '\|(.+Hitem:([0-9]+).+)\|r'
-ITEM_PATTERN = re.compile('.*' + ITEM_REPLACE_REGEX + '.*')
 WOWHEAD_ITEM_URL = 'https://classic.wowhead.com/item='
 
 ################################## FUNCTIONS ###################################

@@ -44,7 +44,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    if message.author.bot == False:
+    if not message.author.bot:
         if message.author.id == ADMIN_ID and RESTART_PATTERN.match(message.content):
             await message.channel.send(f'Restarting CROSS-CHAT, standby...')
             pyautogui.keyDown('ctrl')

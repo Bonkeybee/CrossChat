@@ -45,6 +45,14 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     if message.author.bot == False:
+        if message.author.id == ADMIN_ID and RESTART_PATTERN.match(message.content):
+            await message.channel.send(f'Restarting CROSS-CHAT, standby...')
+            pyautogui.keyDown('ctrl')
+            pyautogui.press('r')
+            time.sleep(1)
+            pyautogui.press('q')
+            pyautogui.keyUp('ctrl')
+            return
         if message.channel.id == CROSSCHAT_CHANNEL_ID:
             if MENTION_PATTERN.match(message.content) or AHK_PATTERN.match(message.content):
                 await message.channel.send(f'VALIDATION ERROR: {message.author.name}, your message was not sent.')
@@ -62,14 +70,6 @@ async def on_message(message):
                     fout.write(line + '\n')
                 except:
                     await message.channel.send(f'ERROR: {message.author.name}, your message was not sent.')
-
-        if message.author.id == ADMIN_ID and RESTART_PATTERN.match(message.content):
-            await message.channel.send(f'Restarting CROSS-CHAT, standby...')
-            pyautogui.keyDown('ctrl')
-            pyautogui.press('r')
-            time.sleep(1)
-            pyautogui.press('q')
-            pyautogui.keyUp('ctrl')
 
 ##################################### MAIN #####################################
 bot.run(TOKEN)

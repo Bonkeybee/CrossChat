@@ -59,7 +59,7 @@ open() {
 }
 
 launch() {
-	close()
+	close(false)
 	open()
 	sleep(3000) ;Wait for programs to open
 }
@@ -103,8 +103,7 @@ crosschat() {
 }
 
 main(login) {
-	if login
-	{
+	if login {
 		login()  ;Login to the game
 	}
 	IniRead, loopamount, config.ini, wow, LOOP_AMOUNT

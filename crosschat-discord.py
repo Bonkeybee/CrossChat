@@ -50,7 +50,7 @@ async def on_message(message):
             name = message.author.name
             if message.author.nick:
                 name = message.author.nick
-            line = ("("+name+"): "+message.content).encode("LATIN-1", "ignore").decode()
+            line = ("("+name+"): "+message.content).encode("LATIN-1", "ignore").decode("UTF-8", "ignore")
             if line:
                 try:
                     print('sent: ' + line)

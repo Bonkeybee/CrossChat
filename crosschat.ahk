@@ -111,6 +111,7 @@ main(login) {
 			reload() ;Flush chatlog to file to be read by external script
 			crosschat() ;Copy text from discord in-game
 		}
+		sleep(1000)
 		login() ;Login to the game
 	}
 }

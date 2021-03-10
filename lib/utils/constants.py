@@ -12,3 +12,6 @@ TIMESTAMP_FILE = 'lastTimestamp.txt'
 
 CONFIG_FILE = 'config\config.ini'
 SAMPLE_CONFIG_FILE = 'config\config.sample'
+
+BACK_SLASH = '\\'
+GUILDCHATLOGGER_ADDON = 'GuildChatLogger'

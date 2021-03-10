@@ -120,6 +120,6 @@ return
 	main(false) ;Restarts reload loop
 return
 ^r:: ;CTRL-R
-	Run, git-pull.py ;Pulls the latest from the repository
+	Run, git_pull.py ;Pulls the latest from the repository
 	Reload ;Reloads the script
 return

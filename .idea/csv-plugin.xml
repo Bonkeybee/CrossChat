@@ -45,6 +45,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\git_pull.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\lib\message.py">
           <value>
             <Attribute>

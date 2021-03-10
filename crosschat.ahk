@@ -40,7 +40,7 @@ open() {
 			didopen = true
 		}
 		if not WinExist("World of Warcraft") {
-			IniRead, gamepath, config.ini, wow, game_path
+			IniRead, gamepath, config\config.ini, wow, game_path
 			Run, %gamepath%
 			didopen = true
 		}
@@ -58,7 +58,7 @@ launch() {
 
 login() {
 	launch() ;Close and open the processes
-	IniRead, password, config.ini, wow, password
+	IniRead, password, config\config.ini, wow, password
 	ControlSendRaw,, %password%, World of Warcraft
 	ControlSend,, {Enter}, World of Warcraft
 	sleep(30000) ;Wait for login
@@ -98,7 +98,7 @@ main(login) {
 	if login {
 		login()  ;Login to the game
 	}
-	IniRead, loopamount, config.ini, wow, loop_amount
+	IniRead, loopamount, config\config.ini, wow, loop_amount
 	While True {
 		Loop, %loopamount% { ;Loop sometime before relogging
 			reload() ;Flush chatlog to file to be read by external script

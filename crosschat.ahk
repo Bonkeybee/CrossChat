@@ -40,7 +40,7 @@ open() {
 			didopen = true
 		}
 		if not WinExist("World of Warcraft") {
-			IniRead, gamepath, config.ini, wow, GAME_PATH
+			IniRead, gamepath, config.ini, wow, game_path
 			Run, %gamepath%
 			didopen = true
 		}

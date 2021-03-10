@@ -36,7 +36,7 @@ open() {
 	Loop {
 		didopen = false
 		if not WinExist("crosschat") {
-			Run, crosschat.py
+			Run, crosschat.bat >>ahk.log
 			didopen = true
 		}
 		if not WinExist("World of Warcraft") {

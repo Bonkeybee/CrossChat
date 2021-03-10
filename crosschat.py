@@ -61,7 +61,7 @@ async def on_ready():
     """Indicator for when the bot connects to discord"""
     LOG.info(bot.user.name + ' has connected to Discord!')
     channel = bot.get_channel(int(config['discord']['crosschat_channel_id']))
-    await channel.send(f'CROSS-CHAT connected.')
+    await channel.send(f'CROSSCHAT connected.')
 
 
 async def handle_restart(message):

@@ -17,12 +17,8 @@ close(all) {
 	Loop {
 		didclose = false
 		if all {
-			if WinExist("crosschat-discord") {
-				WinClose, crosschat-discord
-				didclose = true
-			}
-			if WinExist("crosschat-game") {
-				WinClose, crosschat-game
+			if WinExist("crosschat") {
+				WinClose, crosschat
 				didclose = true
 			}
 		}
@@ -39,12 +35,8 @@ close(all) {
 open() {
 	Loop {
 		didopen = false
-		if not WinExist("crosschat-discord") {
-			Run, crosschat-discord.py
-			didopen = true
-		}
-		if not WinExist("crosschat-game") {
-			Run, crosschat-game.py
+		if not WinExist("crosschat") {
+			Run, crosschat.py
 			didopen = true
 		}
 		if not WinExist("World of Warcraft") {
@@ -66,7 +58,7 @@ launch() {
 
 login() {
 	launch() ;Close and open the processes
-	IniRead, password, config.ini, wow, PASSWORD
+	IniRead, password, config.ini, wow, password
 	ControlSendRaw,, %password%, World of Warcraft
 	ControlSend,, {Enter}, World of Warcraft
 	sleep(30000) ;Wait for login
@@ -106,7 +98,7 @@ main(login) {
 	if login {
 		login()  ;Login to the game
 	}
-	IniRead, loopamount, config.ini, wow, LOOP_AMOUNT
+	IniRead, loopamount, config.ini, wow, loop_amount
 	While True {
 		Loop, %loopamount% { ;Loop sometime before relogging
 			reload() ;Flush chatlog to file to be read by external script

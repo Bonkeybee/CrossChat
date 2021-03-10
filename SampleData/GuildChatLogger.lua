@@ -1,15 +1,15 @@
 
 GUILDCHATLOG = {
-	[1614366082.67306] = {
-		"Tsah", -- [1]
-		"whats the bow?", -- [2]
+	[1614365000.67306] = {
+		"TestUser1", -- [1]
+		"hello world!", -- [2]
 	},
-	[1614365949.67174] = {
-		"Volfur", -- [1]
-		"lies, nobody loves ST", -- [2]
+	[1614366000.67174] = {
+		"TestPlayer2", -- [1]
+		"go away @everyone", -- [2]
 	},
-	[1614364705.6593] = {
-		"Valhallaxx", -- [1]
-		"(Bonkeybee): magic", -- [2]
+	[1614367000.6593] = {
+		"TestPlayer3", -- [1]
+		"(Bonkeybee): it's all ogre now", -- [2]
 	}
 }

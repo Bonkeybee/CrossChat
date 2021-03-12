@@ -5,8 +5,6 @@
 Pipfile,1\5\15af4b3d30054104e85f65a444b1db188c5deefb
 9
 	README.md,8\e\8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
-;
-git-pull.py,7\6\764771ab67f90b1d71e5de070632571b04d24faf
 =
 crosschat.ahk,3\e\3ef1801da67894e575687c20d0a67fed4120ceaf
 E
@@ -33,3 +31,7 @@ N
 lib/services/config_service.py,6\f\6fae1aac13e0f85a6968e2f240608d2eb674b857
 A
 config/config.ini,8\0\80680bd277bcadaacce5cbc6697d87d491a734b6
+;
+git_pull.py,3\1\312941c075f491d5465734329d161ddf8636142d
+S
+#GuildChatLogger/GuildChatLogger.lua,1\e\1ecf77a4190ed6d008a2fd02020d44f59f0734c4

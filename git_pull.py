@@ -14,3 +14,6 @@ ADDON_PATH = config['wow']['addon_path']
 
 shutil.rmtree(ADDON_PATH + constants.BACK_SLASH + constants.GUILDCHATLOGGER_ADDON, True)
 shutil.copytree(constants.GUILDCHATLOGGER_ADDON, ADDON_PATH + constants.BACK_SLASH + constants.GUILDCHATLOGGER_ADDON)
+
+shutil.rmtree(ADDON_PATH + constants.BACK_SLASH + constants.OFFICERCHATLOGGER_ADDON, True)
+shutil.copytree(constants.OFFICERCHATLOGGER_ADDON, ADDON_PATH + constants.BACK_SLASH + constants.OFFICERCHATLOGGER_ADDON)

@@ -9,15 +9,15 @@ from lib.services.state_service import load_state, save_state
 LOG = logging.getLogger(__name__)
 
 
-def is_new_message(message, config):
-    if load_state(config) < message:
+def is_new_message(message, channel, config):
+    if load_state(channel, config) < message:
         return True
     return False
 
 
-def add_message(messages, timestamp, player, line, config):
+def add_message(messages, timestamp, player, line, channel, config):
     message = Message(timestamp, player, line)
-    if is_new_message(message, config):
+    if is_new_message(message, channel, config):
         messages.append(message)
 
 
@@ -28,7 +28,7 @@ def combine_messages(i, j, messages):
     return bulk_message
 
 
-def push(url, timestamp, content, config):
+def push(url, timestamp, content, channel, config):
     status = 0
     while status == 0 or status == 429:
         response = requests.post(url=url, data={'content': content})
@@ -36,15 +36,15 @@ def push(url, timestamp, content, config):
         if status == 429:
             LOG.info('waiting for request limit...')
             time.sleep(1)
-    save_state(timestamp, config)
+    save_state(timestamp, channel, config)
     LOG.info(content)
 
 
-def push_all(url, messages, config):
+def push_all(url, messages, channel, config):
     messages_length = len(messages)
     bulk_index = 0
     while messages_length > 0 and bulk_index < messages_length:
         max_index = min(bulk_index + 6, messages_length)
         bulk_message = combine_messages(bulk_index, max_index, messages)
         bulk_index = max_index
-        push(url, float(messages[bulk_index - 1].timestamp), bulk_message, config)
+        push(url, float(messages[bulk_index - 1].timestamp), bulk_message, channel, config)

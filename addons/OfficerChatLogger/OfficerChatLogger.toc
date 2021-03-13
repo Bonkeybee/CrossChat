@@ -1,0 +1,11 @@
+## Interface: 11306
+## Title: OfficerChatLogger
+## Notes: OfficerChatLogger
+## SavedVariables: OFFICERCHATLOG
+## LoadOnDemand: 0
+## DefaultState: enabled
+## Author: Bonkeybee
+## Version: 11306
+
+
+OfficerChatLogger.lua

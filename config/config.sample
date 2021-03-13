@@ -1,13 +1,15 @@
 [wow]
 game_path = C:\Program Files (x86)\World of Warcraft\_classic_\WowClassic.exe
 addon_path = C:\Program Files (x86)\World of Warcraft\_classic_\Interface\AddOns
-guild_chat_log_file = SampleData\GuildChatLogger.lua
+guild_chat_log_file = addons\SampleData\GuildChatLogger.lua
+officer_chat_log_file = addons\SampleData\OfficerChatLogger.lua
 password = sample
 loop_amount = 300
 
 [discord]
 token = sample
 guild_chat_webhook_url = https://discord.com/api/webhooks/sample
+officer_chat_webhook_url = https://discord.com/api/webhooks/sample
 admin_id = sample
 crosschat_channel_id = sample
 

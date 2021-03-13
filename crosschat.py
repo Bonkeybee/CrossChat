@@ -37,7 +37,7 @@ bot = commands.Bot(command_prefix='!')
 config, debug = load_config(os.getcwd())
 
 
-def chat_log_to_discord_webhook(chat_log_file_option, starting_key, webhook_url_option):
+def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, webhook_url_option):
     while True:
         messages = []
         chat_log = load_chat_log(config['wow'][chat_log_file_option])
@@ -49,9 +49,9 @@ def chat_log_to_discord_webhook(chat_log_file_option, starting_key, webhook_url_
                     data_start = index + 1
                 if data_start is not None and ((index + data_start) % 4) == 0:
                     timestamp, player, message = parse_chat_log(index, chat_log)
-                    add_message(messages, timestamp, player, message, config)
+                    add_message(messages, timestamp, player, message, channel, config)
         messages.sort()
-        push_all(config['discord'][webhook_url_option], messages, config)
+        push_all(config['discord'][webhook_url_option], messages, channel, config)
         time.sleep(1)
 
 
@@ -107,12 +107,15 @@ async def on_message(message):
 
 # noinspection PyBroadException
 try:
-    discord_bot = threading.Thread(target=bot.run, args=(config['discord']['token'],), daemon=True)
-    discord_bot.start()
-    guild_chat = threading.Thread(target=chat_log_to_discord_webhook, args=('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild_chat_webhook_url',), daemon=True)
-    guild_chat.start()
+    # discord_bot = threading.Thread(target=bot.run, args=(config['discord']['token'],), daemon=True)
+    # discord_bot.start()
+    # guild_chat = threading.Thread(target=chat_log_to_discord_webhook, args=('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url',), daemon=True)
+    # guild_chat.start()
+    officer_chat = threading.Thread(target=chat_log_to_discord_webhook, args=('officer_chat_log_file', 'OFFICERCHATLOG = {', 'officer', 'officer_chat_webhook_url',), daemon=True)
+    officer_chat.start()
 
-    discord_bot.join()
-    guild_chat.join()
+    # discord_bot.join()
+    # guild_chat.join()
+    officer_chat.join()
 except Exception as e:
     LOG.exception('Unexpected exception')

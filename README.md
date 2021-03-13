@@ -13,7 +13,9 @@ Rename `config.sample` to `config.ini` and make any necessary changes.
 
 `addon_path` your absolute path to the World of Warcraft interface addons folder
 
-`guild_chat_log_file` your absolute path to your World of Warcraft realm saved variables folder
+`guild_chat_log_file` your absolute path to your World of Warcraft realm saved variables folder for GuildChatLogger
+
+`officer_chat_log_file` your absolute path to your World of Warcraft realm saved variables folder for OfficerChatLogger
 
 `password` your World of Warcraft password
 
@@ -21,7 +23,9 @@ Rename `config.sample` to `config.ini` and make any necessary changes.
 
 `token` your Discord bot token
 
-`guild_chat_webhook_url` your Discord integration webhook URL
+`guild_chat_webhook_url` your Discord integration webhook URL for guild chat
+
+`officer_chat_webhook_url` your Discord integration webhook URL for officer chat
 
 `admin_id` your Discord account ID
 
@@ -35,3 +39,5 @@ Launch AHK script and press `CTRL+R` followed by `CTRL+Q`
 `CTRL+R` will reload the AHK script and pull from this repo to update.
 
 `CTRL+Q` will start World of Warcraft and the CROSSCHAT services .
+
+`CTRL+E` will restart the in-game reloading process without 

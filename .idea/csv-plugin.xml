@@ -80,6 +80,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\lib\utils\constants.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="|" />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\src\crosschat-discord.py">
           <value>
             <Attribute>

@@ -17,4 +17,5 @@ BACK_SLASH = '\\'
 ADDONS = 'addons'
 GUILDCHATLOGGER_ADDON = 'GuildChatLogger'
 OFFICERCHATLOGGER_ADDON = 'OfficerChatLogger'
+SYSTEMCHATLOGGER_ADDON = 'SystemChatLogger'
 

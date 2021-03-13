@@ -12,7 +12,8 @@ def save_state(timestamp, channel, config):
     if timestamp != 0:
         LOG.info("Saving timestamp " + str(timestamp))
         timestamps[channel] = timestamp
-        config['state'] = {}
+        if not config.has_section('state'):
+            config['state'] = {}
         config['state'][channel+'_timestamp'] = str(timestamp)
         with open(constants.CONFIG_FILE, 'w') as configfile:
             config.write(configfile)

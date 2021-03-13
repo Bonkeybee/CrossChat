@@ -36,6 +36,8 @@ bot = commands.Bot(command_prefix='!')
 
 config, debug = load_config(os.getcwd())
 
+CHANNEL_IDS = {int(config['discord']['guild_crosschat_channel_id']): 'guild', int(config['discord']['officer_crosschat_channel_id']): 'officer'}
+
 
 def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, webhook_url_option):
     while True:
@@ -60,13 +62,14 @@ def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, web
 async def on_ready():
     """Indicator for when the bot connects to discord"""
     LOG.info(bot.user.name + ' has connected to Discord!')
-    channel = bot.get_channel(int(config['discord']['crosschat_channel_id']))
-    await channel.send(f'CROSSCHAT connected.')
+    for key in CHANNEL_IDS:
+        await bot.get_channel(key).send('CROSSCHAT connected.')
 
 
 async def handle_restart(message):
     """Send a key-combination on the host to trigger the Auto-Hotkey script reload"""
-    await message.channel.send(f'Restarting CROSSCHAT, standby...')
+    for key in CHANNEL_IDS:
+        await bot.get_channel(key).send('Restarting CROSSCHAT, standby...')
     pyautogui.keyDown('ctrl')
     pyautogui.press('r')
     time.sleep(1)
@@ -87,9 +90,11 @@ async def handle_user_message(message):
     line = ("(" + name + "): " + message.content).encode("LATIN-1", "ignore").decode("UTF-8", "ignore")
     if line:
         try:
-            LOG.info('sent: ' + line)
-            file = open('crosschat.txt', 'a+')
+            channel = CHANNEL_IDS[message.channel.id]
+            LOG.info('[' + channel + ']: ' + line)
+            file = open(channel + '_crosschat.txt', 'a+')
             file.write(line + '\n')
+            file.close()
         except OSError:
             await message.channel.send(f'ERROR: {message.author.name}, your message was not sent.')
 

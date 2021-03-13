@@ -79,9 +79,9 @@ reload() {
 }
 
 crosschat() {
-	if FileExist("crosschat.txt") {
+	if FileExist("guild_crosschat.txt") {
 		Loop {
-			FileReadLine, line, crosschat.txt, %A_Index%
+			FileReadLine, line, guild_crosschat.txt, %A_Index%
 			if ErrorLevel
 				break
 			Clipboard := ("/g " + line)
@@ -89,7 +89,20 @@ crosschat() {
 			ControlSend,, {Enter}{Control Down}v{Control Up}{Enter}, World of Warcraft
 			sleep(100, 200) ;Wait for all copied text to paste
 		}
-		FileDelete, crosschat.txt
+		FileDelete, guild_crosschat.txt
+		sleep(1000) ;Wait for file to be deleted
+	}
+	if FileExist("officer_crosschat.txt") {
+		Loop {
+			FileReadLine, line, officer_crosschat.txt, %A_Index%
+			if ErrorLevel
+				break
+			Clipboard := ("/g " + line)
+			ClipWait
+			ControlSend,, {Enter}{Control Down}v{Control Up}{Enter}, World of Warcraft
+			sleep(100, 200) ;Wait for all copied text to paste
+		}
+		FileDelete, officer_crosschat.txt
 		sleep(1000) ;Wait for file to be deleted
 	}
 }

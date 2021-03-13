@@ -29,9 +29,13 @@ Rename `config.sample` to `config.ini` and make any necessary changes.
 
 `admin_id` your Discord account ID
 
-`crosschat_channel_id` your designated Discord CROSSCHAT channel id
+`guild_crosschat_channel_id` your designated Discord guild CROSSCHAT channel id
 
-`guild_timestamp` the initial World of Warcraft timestamp to start reading from
+`officer_crosschat_channel_id` your designated Discord officer CROSSCHAT channel id
+
+`guild_timestamp` the initial World of Warcraft timestamp to start reading guild chat from
+
+`officer_timestamp` the initial World of Warcraft timestamp to start reading officer chat from
 
 #Execution:
 Launch AHK script and press `CTRL+R` followed by `CTRL+Q`

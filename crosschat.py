@@ -36,7 +36,7 @@ bot = commands.Bot(command_prefix='!')
 
 config, debug = load_config(os.getcwd())
 
-CHANNEL_IDS = {int(config['discord']['guild_crosschat_channel_id']): 'guild', int(config['discord']['officer_crosschat_channel_id']): 'officer'}
+USER_CHANNEL_IDS = {int(config['discord']['guild_crosschat_channel_id']): 'guild', int(config['discord']['officer_crosschat_channel_id']): 'officer'}
 
 
 def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, webhook_url_option):
@@ -62,13 +62,13 @@ def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, web
 async def on_ready():
     """Indicator for when the bot connects to discord"""
     LOG.info(bot.user.name + ' has connected to Discord!')
-    for key in CHANNEL_IDS:
+    for key in USER_CHANNEL_IDS:
         await bot.get_channel(key).send('CROSSCHAT connected.')
 
 
 async def handle_restart(message):
     """Send a key-combination on the host to trigger the Auto-Hotkey script reload"""
-    for key in CHANNEL_IDS:
+    for key in USER_CHANNEL_IDS:
         await bot.get_channel(key).send('Restarting CROSSCHAT, standby...')
     pyautogui.keyDown('ctrl')
     pyautogui.press('r')
@@ -90,7 +90,7 @@ async def handle_user_message(message):
     line = ("(" + name + "): " + message.content).encode("LATIN-1", "ignore").decode("UTF-8", "ignore")
     if line:
         try:
-            channel = CHANNEL_IDS[message.channel.id]
+            channel = USER_CHANNEL_IDS[message.channel.id]
             LOG.info('[' + channel + ']: ' + line)
             file = open(channel + '_crosschat.txt', 'a+')
             file.write(line + '\n')
@@ -106,7 +106,7 @@ async def on_message(message):
         if message.author.id == int(config['discord']['admin_id']) and constants.RESTART_PATTERN.match(message.content):
             await handle_restart(message)
             return
-        if message.channel.id == int(config['discord']['crosschat_channel_id']):
+        if message.channel.id in USER_CHANNEL_IDS.values():
             await handle_user_message(message)
 
 

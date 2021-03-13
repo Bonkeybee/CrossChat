@@ -14,6 +14,7 @@ CONFIG_FILE = 'config\config.ini'
 SAMPLE_CONFIG_FILE = 'config\config.sample'
 
 BACK_SLASH = '\\'
-GUILDCHATLOGGER_ADDON = 'addons\GuildChatLogger'
-OFFICERCHATLOGGER_ADDON = 'addons\OfficerChatLogger'
+ADDONS = 'addons'
+GUILDCHATLOGGER_ADDON = 'GuildChatLogger'
+OFFICERCHATLOGGER_ADDON = 'OfficerChatLogger'
 

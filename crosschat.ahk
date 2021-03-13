@@ -97,7 +97,7 @@ crosschat() {
 			FileReadLine, line, officer_crosschat.txt, %A_Index%
 			if ErrorLevel
 				break
-			Clipboard := ("/g " + line)
+			Clipboard := ("/o " + line)
 			ClipWait
 			ControlSend,, {Enter}{Control Down}v{Control Up}{Enter}, World of Warcraft
 			sleep(100, 200) ;Wait for all copied text to paste

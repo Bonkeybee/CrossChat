@@ -106,7 +106,7 @@ async def on_message(message):
         if message.author.id == int(config['discord']['admin_id']) and constants.RESTART_PATTERN.match(message.content):
             await handle_restart(message)
             return
-        if message.channel.id in USER_CHANNEL_IDS.values():
+        if message.channel.id in USER_CHANNEL_IDS.keys():
             await handle_user_message(message)
 
 

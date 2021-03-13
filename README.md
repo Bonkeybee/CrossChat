@@ -17,6 +17,8 @@ Rename `config.sample` to `config.ini` and make any necessary changes.
 
 `officer_chat_log_file` your absolute path to your World of Warcraft realm saved variables folder for OfficerChatLogger
 
+`system_chat_log_file` your absolute path to your World of Warcraft realm saved variables folder for SystemChatLogger
+
 `password` your World of Warcraft password
 
 `loop_amount` the loop count before restarting the script
@@ -26,6 +28,8 @@ Rename `config.sample` to `config.ini` and make any necessary changes.
 `guild_chat_webhook_url` your Discord integration webhook URL for guild chat
 
 `officer_chat_webhook_url` your Discord integration webhook URL for officer chat
+
+`system_chat_webhook_url` your Discord integration webhook URL for system chat
 
 `admin_id` your Discord account ID
 

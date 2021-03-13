@@ -118,9 +118,12 @@ try:
     guild_chat.start()
     officer_chat = threading.Thread(target=chat_log_to_discord_webhook, args=('officer_chat_log_file', 'OFFICERCHATLOG = {', 'officer', 'officer_chat_webhook_url',), daemon=True)
     officer_chat.start()
+    system_chat = threading.Thread(target=chat_log_to_discord_webhook, args=('system_chat_log_file', 'SYSTEMCHATLOG = {', 'system', 'system_chat_webhook_url',), daemon=True)
+    system_chat.start()
 
     discord_bot.join()
     guild_chat.join()
     officer_chat.join()
+    system_chat.join()
 except Exception as e:
     LOG.exception('Unexpected exception')

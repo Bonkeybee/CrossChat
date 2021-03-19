@@ -13,6 +13,7 @@ better-profanity = "*"
 requests = "*"
 asyncio = "*"
 pynacl = "*"
+pytz = "*"
 
 [dev-packages]
 

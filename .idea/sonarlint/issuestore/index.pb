@@ -19,8 +19,6 @@ D
 config/config.sample,1\0\101c22404f0984bda8f204c69e181a0d4a2d3919
 P
  lib/services/chat_log_service.py,2\d\2d352abfb8b768fd5814c26fee3ecd27d4bfbd5a
-N
-SampleData/GuildChatLogger.lua,1\a\1ac0dea44beca72e108031faa2351252ee80f0b9
 O
 lib/services/message_service.py,6\d\6d0a1c23484ae7fad229380f051b41dcdca9a0d4
 D
@@ -33,5 +31,11 @@ A
 config/config.ini,8\0\80680bd277bcadaacce5cbc6697d87d491a734b6
 ;
 git_pull.py,3\1\312941c075f491d5465734329d161ddf8636142d
-S
-#GuildChatLogger/GuildChatLogger.lua,1\e\1ecf77a4190ed6d008a2fd02020d44f59f0734c4
+W
+'addons/SampleData/OfficerChatLogger.lua,a\6\a6b02aa7775348b561c2fb21f8f94f8ae756063b
+V
+&addons/SampleData/SystemChatLogger.lua,c\4\c478ceeb25d358d9df4475f71c096df8d29a5330
+\
+,addons/SystemChatLogger/SystemChatLogger.toc,c\3\c30bcd986d81b6b93a74905a9d0f5790dabb9dfa
+\
+,addons/SystemChatLogger/SystemChatLogger.lua,4\b\4baed56656b7dccde3d2f0f4102ff522f36ac84b

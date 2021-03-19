@@ -1,6 +1,8 @@
 import logging
 import re
 import time
+import pytz
+from datetime import datetime
 
 from lib.utils import constants
 
@@ -25,8 +27,15 @@ class Message:
             return float(self.timestamp) > float(other)
 
     def __str__(self):
-        readable_timestamp = time.strftime('%I:%M:%S %p', time.gmtime(float(self.timestamp) - 18000))
+        if is_dst():
+            readable_timestamp = time.strftime('%I:%M:%S %p', time.gmtime(float(self.timestamp) - 14400))
+        else:
+            readable_timestamp = time.strftime('%I:%M:%S %p', time.gmtime(float(self.timestamp) - 18000))
         return ("`[" + readable_timestamp + "]` [" + self.player + "]: " + self.line).encode("LATIN-1", "ignore").decode("UTF-8", "ignore")
+
+
+def is_dst():
+    return not (pytz.timezone('US/Eastern').localize(datetime(year=datetime.now().year, month=1, day=1)).utcoffset() == datetime.now().utcoffset())
 
 
 def replace_escape_sequences(line):

@@ -7,7 +7,11 @@ RESTART_PATTERN = re.compile('!restart')
 ITEM_REPLACE_REGEX = '\|(.+Hitem:([0-9]+).+)\|r'
 ITEM_PATTERN = re.compile('.*' + ITEM_REPLACE_REGEX + '.*')
 
+ENCHANT_REPLACE_REGEX = '\|(.+Henchant:([0-9]+).+)\|r'
+ENCHANT_PATTERN = re.compile('.*' + ENCHANT_REPLACE_REGEX + '.*')
+
 WOWHEAD_ITEM_URL = 'https://classic.wowhead.com/item='
+WOWHEAD_SPELL_URL = 'https://classic.wowhead.com/spell='
 TIMESTAMP_FILE = 'lastTimestamp.txt'
 
 CONFIG_FILE = 'config\config.ini'

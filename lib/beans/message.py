@@ -12,7 +12,7 @@ class Message:
     def __init__(self, timestamp, player, line):
         self.timestamp = timestamp
         self.player = player
-        self.line = replace_item_patterns(replace_mentions(replace_escape_sequences(line)))
+        self.line = replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_mentions(replace_escape_sequences(line)))))
 
     def __lt__(self, other):
         if type(other) is Message:
@@ -55,6 +55,34 @@ def replace_mentions(line):
     return line
 
 
+def replace_raidmarks(line):
+    if '{skull}' in line:
+        LOG.debug("Mutating(raidmarks): " + line)
+        line = line.replace('{skull}', ':m1:')
+    if '{cross}' in line:
+        LOG.debug("Mutating(raidmarks): " + line)
+        line = line.replace('{cross}', ':m2:')
+    if '{square}' in line:
+        LOG.debug("Mutating(raidmarks): " + line)
+        line = line.replace('{square}', ':m3:')
+    if '{moon}' in line:
+        LOG.debug("Mutating(raidmarks): " + line)
+        line = line.replace('{moon}', ':m4:')
+    if '{triangle}' in line:
+        LOG.debug("Mutating(raidmarks): " + line)
+        line = line.replace('{triangle}', ':m5:')
+    if '{diamond}' in line:
+        LOG.debug("Mutating(raidmarks): " + line)
+        line = line.replace('{diamond}', ':m6:')
+    if '{circle}' in line:
+        LOG.debug("Mutating(raidmarks): " + line)
+        line = line.replace('{circle}', ':m7:')
+    if '{star}' in line:
+        LOG.debug("Mutating(raidmarks): " + line)
+        line = line.replace('{star}', ':m8:')
+    return line
+
+
 def replace_item_patterns(line):
     if constants.ITEM_PATTERN.match(line):
         LOG.debug("Mutating(item_patterns): " + line)
@@ -65,6 +93,22 @@ def replace_item_patterns(line):
             if split_match:
                 item_id = split_match.group(2)
                 split = re.sub(constants.ITEM_REPLACE_REGEX, constants.WOWHEAD_ITEM_URL + item_id, split + '|r')
+                line = line + split + ' '
+            else:
+                line = line + split
+    return line
+
+
+def replace_enchant_patterns(line):
+    if constants.ENCHANT_PATTERN.match(line):
+        LOG.debug("Mutating(enchant_patterns): " + line)
+        split_message = line.split('|r')
+        line = ''
+        for split in split_message:
+            split_match = constants.ENCHANT_PATTERN.match(split + '|r')
+            if split_match:
+                spell_id = split_match.group(2)
+                split = re.sub(constants.ENCHANT_REPLACE_REGEX, constants.WOWHEAD_SPELL_URL + spell_id, split + '|r')
                 line = line + split + ' '
             else:
                 line = line + split

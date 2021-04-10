@@ -39,3 +39,7 @@ V
 ,addons/SystemChatLogger/SystemChatLogger.toc,c\3\c30bcd986d81b6b93a74905a9d0f5790dabb9dfa
 \
 ,addons/SystemChatLogger/SystemChatLogger.lua,4\b\4baed56656b7dccde3d2f0f4102ff522f36ac84b
+V
+&addons/LFGChatLogger/LFGChatLogger.toc,b\b\bb03b2a6acbe7423db3a97928838997455df0aec
+V
+&addons/LFGChatLogger/LFGChatLogger.lua,8\5\85ba0802ca43c2aefb5f8f1e71fd36128681d54e

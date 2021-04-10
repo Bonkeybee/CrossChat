@@ -58,28 +58,28 @@ def replace_mentions(line):
 def replace_raidmarks(line):
     if '{skull}' in line:
         LOG.debug("Mutating(raidmarks): " + line)
-        line = line.replace('{skull}', ':m1:')
+        line = line.replace('{skull}', '<:m1:653845160668430338>')
     if '{cross}' in line:
         LOG.debug("Mutating(raidmarks): " + line)
-        line = line.replace('{cross}', ':m2:')
+        line = line.replace('{cross}', '<:m2:653845153991360512>')
     if '{square}' in line:
         LOG.debug("Mutating(raidmarks): " + line)
-        line = line.replace('{square}', ':m3:')
+        line = line.replace('{square}', '<:m3:653845142809346097>')
     if '{moon}' in line:
         LOG.debug("Mutating(raidmarks): " + line)
-        line = line.replace('{moon}', ':m4:')
+        line = line.replace('{moon}', '<:m4:653845133883736075>')
     if '{triangle}' in line:
         LOG.debug("Mutating(raidmarks): " + line)
-        line = line.replace('{triangle}', ':m5:')
+        line = line.replace('{triangle}', '<:m5:653845123830120502>')
     if '{diamond}' in line:
         LOG.debug("Mutating(raidmarks): " + line)
-        line = line.replace('{diamond}', ':m6:')
+        line = line.replace('{diamond}', '<:m6:653845114694664205>')
     if '{circle}' in line:
         LOG.debug("Mutating(raidmarks): " + line)
-        line = line.replace('{circle}', ':m7:')
+        line = line.replace('{circle}', '<:m7:653845107346374666>')
     if '{star}' in line:
         LOG.debug("Mutating(raidmarks): " + line)
-        line = line.replace('{star}', ':m8:')
+        line = line.replace('{star}', '<:m8:653845093027151872>')
     return line
 
 

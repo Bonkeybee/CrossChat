@@ -57,6 +57,24 @@ def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, web
         time.sleep(1)
 
 
+def looking_for_group_to_discord_webhook():
+    while True:
+        messages = []
+        chat_log = load_chat_log(config['wow']['lfg_chat_log_file'])
+        chat_log_length = len(chat_log)
+        data_start = None
+        for index, line in enumerate(chat_log):
+            if index < chat_log_length - 1:
+                if re.match('LFGCHATLOG = {', chat_log[index]):
+                    data_start = index + 1
+                if data_start is not None and ((index + data_start) % 4) == 0:
+                    timestamp, player, message = parse_chat_log(index, chat_log)
+                    add_message(messages, timestamp, player, message, 'lfg', config)
+        messages.sort()
+        push_all(config['discord']['lfg_chat_webhook_url'], messages, 'lfg', config)
+        time.sleep(1)
+
+
 # DISCORD STUFF
 @bot.event
 async def on_ready():
@@ -120,10 +138,13 @@ try:
     officer_chat.start()
     system_chat = threading.Thread(target=chat_log_to_discord_webhook, args=('system_chat_log_file', 'SYSTEMCHATLOG = {', 'system', 'system_chat_webhook_url',), daemon=True)
     system_chat.start()
+    lfg_chat = threading.Thread(target=looking_for_group_to_discord_webhook, daemon=True)
+    lfg_chat.start()
 
     discord_bot.join()
     guild_chat.join()
     officer_chat.join()
     system_chat.join()
+    lfg_chat.join()
 except Exception as e:
     LOG.exception('Unexpected exception')

@@ -15,7 +15,7 @@ local function onEvent(_, event, message)
   if (not message) then
     return
   end
-  
+
   -- Filter useless messages
   if (strfind(message, "Guild created")) then
 	return
@@ -23,12 +23,21 @@ local function onEvent(_, event, message)
   if (strfind(message, "Guild:")) then
 	return
   end
+  if (strfind(message, "has invited you to join a group.")) then
+    return
+  end
+  if (strfind(message, "invites you to join")) then
+    return
+  end
+  if (strfind(message, "Discovered")) then
+    return
+  end
 
   -- Load or create the saved variable
   if (not SYSTEMCHATLOG) then
     SYSTEMCHATLOG = {}
   end
-  
+
   -- Save the message
   SYSTEMCHATLOG[GetTimestamp()] = {"SYSTEM", message}
 

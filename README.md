@@ -41,9 +41,31 @@ Rename `config.sample` to `config.ini` and make any necessary changes.
 
 `officer_crosschat_channel_id` your designated Discord officer CROSSCHAT channel id
 
+`lfg_crosschat_channel_id` your designated Discord LFG CROSSCHAT channel id
+
+`skull_emoji` your Discord emoji replacement for World of Warcraft's skull icon
+
+`cross_emoji` your Discord emoji replacement for World of Warcraft's skull icon
+
+`square_emoji` your Discord emoji replacement for World of Warcraft's skull icon
+
+`moon_emoji` your Discord emoji replacement for World of Warcraft's skull icon
+
+`triangle_emoji` your Discord emoji replacement for World of Warcraft's skull icon
+
+`diamond_emoji` <your Discord emoji replacement for World of Warcraft's skull icon
+
+`circle_emoji` your Discord emoji replacement for World of Warcraft's skull icon
+
+`star_emoji` your Discord emoji replacement for World of Warcraft's skull icon
+
 `guild_timestamp` the initial World of Warcraft timestamp to start reading guild chat from
 
 `officer_timestamp` the initial World of Warcraft timestamp to start reading officer chat from
+
+`lfg_embed_message_id` the Discord message id of the LFG embed
+
+`lfg_timestamp` the last timestamp LFG was updated at
 
 #Execution:
 Launch AHK script and press `CTRL+R` followed by `CTRL+Q`

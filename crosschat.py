@@ -1,18 +1,19 @@
 """Handles the discord->game portion of crosschat"""
+import asyncio
 import logging
-import os
 import re
-import threading
-import time
+from collections import OrderedDict
 from os import system
 
+import discord
 import pyautogui
 from better_profanity import profanity
 from discord.ext import commands
 from tendo import singleton
 
+import settings
+from lib.beans.message import Message
 from lib.services.chat_log_service import parse_chat_log, load_chat_log
-from lib.services.config_service import load_config
 from lib.services.message_service import push_all, add_message
 from lib.utils import constants
 
@@ -34,15 +35,14 @@ LOG.info("Starting CROSSCHAT...")
 profanity.load_censor_words()
 bot = commands.Bot(command_prefix='!')
 
-config, debug = load_config(os.getcwd())
-
-USER_CHANNEL_IDS = {int(config['discord']['guild_crosschat_channel_id']): 'guild', int(config['discord']['officer_crosschat_channel_id']): 'officer'}
+USER_CHANNEL_IDS = {int(settings.load()['discord']['guild_crosschat_channel_id']): 'guild', int(settings.load()['discord']['officer_crosschat_channel_id']): 'officer'}
 
 
-def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, webhook_url_option):
+async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, webhook_url_option):
+    await bot.wait_until_ready()
     while True:
         messages = []
-        chat_log = load_chat_log(config['wow'][chat_log_file_option])
+        chat_log = load_chat_log(settings.load()['wow'][chat_log_file_option])
         chat_log_length = len(chat_log)
         data_start = None
         for index, line in enumerate(chat_log):
@@ -51,16 +51,17 @@ def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, web
                     data_start = index + 1
                 if data_start is not None and ((index + data_start) % 4) == 0:
                     timestamp, player, message = parse_chat_log(index, chat_log)
-                    add_message(messages, timestamp, player, message, channel, config)
+                    add_message(messages, timestamp, player, message, channel)
         messages.sort()
-        push_all(config['discord'][webhook_url_option], messages, channel, config)
-        time.sleep(1)
+        push_all(settings.load()['discord'][webhook_url_option], messages, channel)
+        await asyncio.sleep(1)
 
 
-def looking_for_group_to_discord_webhook():
+async def looking_for_group_to_discord_webhook():
+    await bot.wait_until_ready()
     while True:
         messages = []
-        chat_log = load_chat_log(config['wow']['lfg_chat_log_file'])
+        chat_log = load_chat_log(settings.load()['wow']['lfg_chat_log_file'])
         chat_log_length = len(chat_log)
         data_start = None
         for index, line in enumerate(chat_log):
@@ -69,10 +70,54 @@ def looking_for_group_to_discord_webhook():
                     data_start = index + 1
                 if data_start is not None and ((index + data_start) % 4) == 0:
                     timestamp, player, message = parse_chat_log(index, chat_log)
-                    add_message(messages, timestamp, player, message, 'lfg', config)
+                    add_message(messages, timestamp, player, message, 'lfg')
         messages.sort()
-        push_all(config['discord']['lfg_chat_webhook_url'], messages, 'lfg', config)
-        time.sleep(1)
+        await update_lfg(messages)
+        push_all(settings.load()['discord']['lfg_chat_webhook_url'], messages, 'lfg')
+        await asyncio.sleep(1)
+
+
+async def update_lfg(messages: list[Message]) -> None:
+    if messages:
+        if settings.load().has_section('state') and settings.load().has_option('state', 'lfg_embed_message_id'):
+            discord_message: discord.Message = await bot.get_channel(int(settings.load()['discord']['lfg_crosschat_channel_id'])).fetch_message(int(settings.load()['state']['lfg_embed_message_id']))
+            if not discord_message.embeds:
+                return await create_lfg_embed(discord_message, messages)
+
+            old_messages = []
+            for field in discord_message.embeds[0].fields:
+                if field.name and field.value:
+                    timestamp = field.name.split(':')[0]
+                    player = field.name.split(':')[1].strip()
+                    line = field.value.split(':')[1].strip()
+                    message = Message(timestamp, player, line)
+                    old_messages.append(message)
+            messages = old_messages + messages
+            messages = list(OrderedDict.fromkeys(messages))
+            messages.sort()
+
+            await create_lfg_embed(discord_message, messages)
+        else:
+            await create_lfg_embed(None, messages)
+
+
+async def create_lfg_embed(discord_message, messages):
+    embed = discord.Embed(title='LookingForGroup', description=messages[-1].timestamp)
+    message_map = {}
+    for message in messages:
+        message_map[message.player] = message
+    for player, message in message_map.items():
+        duration = int((float(messages[-1].timestamp) - float(message.timestamp)) / 60)
+        if duration <= 60:
+            readable_duration = str(duration) + ' minutes ago'
+            embed.add_field(name=(message.timestamp + ':  ' + message.player), value=(readable_duration + ': ' + message.line), inline=False)
+    if discord_message:
+        await discord_message.edit(embed=embed)
+    else:
+        discord_message = await bot.get_channel(int(settings.load()['discord']['lfg_crosschat_channel_id'])).send(embed=embed)
+        settings.load()['state']['lfg_embed_message_id'] = str(discord_message.id)
+        with open(constants.CONFIG_FILE, 'w') as configfile:
+            settings.load().write(configfile)
 
 
 # DISCORD STUFF
@@ -80,17 +125,15 @@ def looking_for_group_to_discord_webhook():
 async def on_ready():
     """Indicator for when the bot connects to discord"""
     LOG.info(bot.user.name + ' has connected to Discord!')
-    for key in USER_CHANNEL_IDS:
-        await bot.get_channel(key).send('CROSSCHAT connected.')
 
 
-async def handle_restart(message):
+async def handle_restart():
     """Send a key-combination on the host to trigger the Auto-Hotkey script reload"""
     for key in USER_CHANNEL_IDS:
         await bot.get_channel(key).send('Restarting CROSSCHAT, standby...')
     pyautogui.keyDown('ctrl')
     pyautogui.press('r')
-    time.sleep(1)
+    await asyncio.sleep(1)
     pyautogui.press('q')
     pyautogui.keyUp('ctrl')
 
@@ -121,8 +164,8 @@ async def handle_user_message(message):
 async def on_message(message):
     """Discord message handling"""
     if not message.author.bot:
-        if message.author.id == int(config['discord']['admin_id']) and constants.RESTART_PATTERN.match(message.content):
-            await handle_restart(message)
+        if message.author.id == int(settings.load()['discord']['admin_id']) and constants.RESTART_PATTERN.match(message.content):
+            await handle_restart()
             return
         if message.channel.id in USER_CHANNEL_IDS.keys():
             await handle_user_message(message)
@@ -130,21 +173,10 @@ async def on_message(message):
 
 # noinspection PyBroadException
 try:
-    discord_bot = threading.Thread(target=bot.run, args=(config['discord']['token'],), daemon=True)
-    discord_bot.start()
-    guild_chat = threading.Thread(target=chat_log_to_discord_webhook, args=('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url',), daemon=True)
-    guild_chat.start()
-    officer_chat = threading.Thread(target=chat_log_to_discord_webhook, args=('officer_chat_log_file', 'OFFICERCHATLOG = {', 'officer', 'officer_chat_webhook_url',), daemon=True)
-    officer_chat.start()
-    system_chat = threading.Thread(target=chat_log_to_discord_webhook, args=('system_chat_log_file', 'SYSTEMCHATLOG = {', 'system', 'system_chat_webhook_url',), daemon=True)
-    system_chat.start()
-    lfg_chat = threading.Thread(target=looking_for_group_to_discord_webhook, daemon=True)
-    lfg_chat.start()
-
-    discord_bot.join()
-    guild_chat.join()
-    officer_chat.join()
-    system_chat.join()
-    lfg_chat.join()
+    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url'))
+    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('officer_chat_log_file', 'OFFICERCHATLOG = {', 'officer', 'officer_chat_webhook_url'))
+    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('system_chat_log_file', 'SYSTEMCHATLOG = {', 'system', 'system_chat_webhook_url'))
+    asyncio.get_event_loop().create_task(looking_for_group_to_discord_webhook())
+    asyncio.get_event_loop().create_task(bot.run(settings.load()['discord']['token']))
 except Exception as e:
     LOG.exception('Unexpected exception')

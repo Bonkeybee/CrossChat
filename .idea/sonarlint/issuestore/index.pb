@@ -25,8 +25,6 @@ D
 lib/beans/message.py,1\c\1c4eccba47f9f63c8037e80a4a16388871ab33a4
 <
 crosschat.py,d\a\dae50e3cbe9f3d24a6d68d008465829858760761
-N
-lib/services/config_service.py,6\f\6fae1aac13e0f85a6968e2f240608d2eb674b857
 A
 config/config.ini,8\0\80680bd277bcadaacce5cbc6697d87d491a734b6
 ;
@@ -43,3 +41,7 @@ V
 &addons/LFGChatLogger/LFGChatLogger.toc,b\b\bb03b2a6acbe7423db3a97928838997455df0aec
 V
 &addons/LFGChatLogger/LFGChatLogger.lua,8\5\85ba0802ca43c2aefb5f8f1e71fd36128681d54e
+S
+#addons/SampleData/LFGChatLogger.lua,1\e\1ea47a7128911d9726d79d744bae485bac5f542f
+;
+settings.py,8\8\888c15d72e41c9f0f1882f4aea4c2d19f1a044eb

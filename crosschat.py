@@ -72,17 +72,18 @@ async def looking_for_group_to_discord_webhook():
                     timestamp, player, message = parse_chat_log(index, chat_log)
                     add_message(messages, timestamp, player, message, 'lfg')
         messages.sort()
-        await update_lfg(messages)
-        push_all(settings.load()['discord']['lfg_chat_webhook_url'], messages, 'lfg')
+        messages = await update_lfg(messages)
+        if messages:
+            push_all(settings.load()['discord']['lfg_chat_webhook_url'], messages, 'lfg')
         await asyncio.sleep(1)
 
 
-async def update_lfg(messages: list[Message]) -> None:
+async def update_lfg(messages: list[Message]) -> list[Message]:
     if messages:
         if settings.load().has_section('state') and settings.load().has_option('state', 'lfg_embed_message_id'):
             discord_message: discord.Message = await bot.get_channel(int(settings.load()['discord']['lfg_crosschat_channel_id'])).fetch_message(int(settings.load()['state']['lfg_embed_message_id']))
             if not discord_message.embeds:
-                return await create_lfg_embed(discord_message, messages)
+                return await create_lfg_embed(discord_message, [], messages)
 
             old_messages = []
             for field in discord_message.embeds[0].fields:
@@ -92,24 +93,38 @@ async def update_lfg(messages: list[Message]) -> None:
                     line = field.value.split(':')[1].strip()
                     message = Message(timestamp, player, line)
                     old_messages.append(message)
-            messages = old_messages + messages
-            messages = list(OrderedDict.fromkeys(messages))
-            messages.sort()
-
-            await create_lfg_embed(discord_message, messages)
+            old_messages.sort()
+            return await create_lfg_embed(discord_message, old_messages, messages)
         else:
-            await create_lfg_embed(None, messages)
+            return await create_lfg_embed(None, [], messages)
 
 
-async def create_lfg_embed(discord_message, messages):
-    embed = discord.Embed(title='LookingForGroup', description=messages[-1].timestamp)
+async def create_lfg_embed(discord_message, old_messages, new_messages):
+    lfg_messages = []
+    non_lfg_messages = []
+    for message in new_messages:
+        if 'LF' in message.line:
+            lfg_messages.append(message)
+        else:
+            non_lfg_messages.append(message)
+
+    embed = discord.Embed(title='LookingForGroup', description=new_messages[-1].timestamp)
+    messages_to_embed = old_messages + lfg_messages
+    messages_to_embed = list(OrderedDict.fromkeys(messages_to_embed))
+    messages_to_embed.sort()
     message_map = {}
-    for message in messages:
+    for message in messages_to_embed:
         message_map[message.player] = message
-    for player, message in message_map.items():
-        duration = int((float(messages[-1].timestamp) - float(message.timestamp)) / 60)
+    messages_to_embed = list(message_map.values())
+    messages_to_embed.sort()
+    for message in messages_to_embed:
+        duration = int((float(new_messages[-1].timestamp) - float(message.timestamp)) / 60)
         if duration <= 60:
             readable_duration = str(duration) + ' minutes ago'
+            if duration == 0:
+                readable_duration = 'just now'
+            if duration == 1:
+                readable_duration = str(duration) + ' minute ago'
             embed.add_field(name=(message.timestamp + ':  ' + message.player), value=(readable_duration + ': ' + message.line), inline=False)
     if discord_message:
         await discord_message.edit(embed=embed)
@@ -118,6 +133,7 @@ async def create_lfg_embed(discord_message, messages):
         settings.load()['state']['lfg_embed_message_id'] = str(discord_message.id)
         with open(constants.CONFIG_FILE, 'w') as configfile:
             settings.load().write(configfile)
+    return non_lfg_messages
 
 
 # DISCORD STUFF

@@ -14,8 +14,8 @@ class Message:
     """Message class to hold properties parsed from World of Warcraft logging addons"""
     def __init__(self, timestamp, player, line):
         self.timestamp = timestamp
-        self.player = player
-        self.line = replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_mentions(replace_escape_sequences(line)))))
+        self.player = player.encode("LATIN-1", "ignore").decode("UTF-8", "ignore")
+        self.line = replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_mentions(replace_escape_sequences(line))))).encode("LATIN-1", "ignore").decode("UTF-8", "ignore")
 
     def __lt__(self, other) -> bool:
         if type(other) is Message:
@@ -40,7 +40,7 @@ class Message:
             readable_timestamp = time.strftime('%I:%M:%S %p', time.gmtime(float(self.timestamp) - 14400))
         else:
             readable_timestamp = time.strftime('%I:%M:%S %p', time.gmtime(float(self.timestamp) - 18000))
-        return ("`[" + readable_timestamp + "]` [" + self.player + "]: " + self.line).encode("LATIN-1", "ignore").decode("UTF-8", "ignore")
+        return "`[" + readable_timestamp + "]` [" + self.player + "]: " + self.line
 
 
 def is_dst() -> bool:

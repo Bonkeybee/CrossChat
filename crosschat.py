@@ -103,7 +103,7 @@ async def create_lfg_embed(discord_message, old_messages, new_messages):
     lfg_messages = []
     non_lfg_messages = []
     for message in new_messages:
-        if 'LF' in message.line:
+        if 'lf' in message.line.lower():
             lfg_messages.append(message)
         else:
             non_lfg_messages.append(message)

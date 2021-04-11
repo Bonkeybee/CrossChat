@@ -125,6 +125,8 @@ async def create_lfg_embed(discord_message, old_messages, new_messages):
                 readable_duration = 'just now'
             if duration == 1:
                 readable_duration = str(duration) + ' minute ago'
+            if len(embed.fields) >= 25:
+                embed.remove_field(0)
             embed.add_field(name=(message.timestamp + ':  ' + message.player), value=(readable_duration + ': ' + message.line), inline=False)
     if discord_message:
         await discord_message.edit(embed=embed)

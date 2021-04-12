@@ -10,7 +10,7 @@ ITEM_PATTERN = re.compile('.*' + ITEM_REPLACE_REGEX + '.*')
 ENCHANT_REPLACE_REGEX = '\|(.+Henchant:([0-9]+).+)\|r'
 ENCHANT_PATTERN = re.compile('.*' + ENCHANT_REPLACE_REGEX + '.*')
 
-LFG_PATTERN = re.compile('.*(lf|lfm|lfg|looking|any|anyone|need|tank[s]*|heal[s]*|healer[s]*|dps).*( )([/]*(whatever|any|tank[s]*|heal[s]*|healer[s]*|dps|pvp|lf|lfm|lfg|looking|mara|diremaul|zg|zf|rfd|bfd|ubrs|lbrs|ulda|aq|aq20|aq40|st|brd|sfk|sm|dm|deadmine[s]*|stockade[s]*|stock[s]*|gnomer|gnomeregan|strat|scholo|scholomance|dungeon)[/]*\\b).*', re.IGNORECASE)
+LFG_PATTERN = re.compile('.*(lf|lfm|lfg|looking|any|anyone|need|tank[s]*|heal[s]*|healer[s]*|dps).*( )([/]*(whatever|any|tank[s]*|heal[s]*|healer[s]*|dps|pvp|lf|lfm|lfg|looking|mara|diremaul|zg|zf|rfd|bfd|ubrs|lbrs|uld|ulda|aq|aq20|aq40|st|brd|sfk|sm|dm|deadmine[s]*|stockade[s]*|stock[s]*|gnomer|gnomeregan|strat|scholo|scholomance|dungeon)[/]*\\b).*', re.IGNORECASE)
 BOOST_PATTERN = re.compile('.*(wtb|wts|boost|gdkp).*', re.IGNORECASE)
 
 SKULL = '{skull}'

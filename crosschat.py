@@ -89,8 +89,8 @@ async def update_lfg(messages: list[Message]) -> list[Message]:
             for field in discord_message.embeds[0].fields:
                 if field.name and field.value:
                     timestamp = field.name.split(':')[0]
-                    player = field.name.split(':')[1].strip()
-                    line = field.value.split(':')[1].strip()
+                    player = field.name.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1].strip()
+                    line = field.value.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1].strip()
                     message = Message(timestamp, player, line)
                     old_messages.append(message)
             old_messages.sort()
@@ -103,7 +103,8 @@ async def create_lfg_embed(discord_message, old_messages, new_messages):
     lfg_messages = []
     non_lfg_messages = []
     for message in new_messages:
-        if 'lf' in message.line.lower():
+        beep = constants.LFG_PATTERN.match(message.line)
+        if constants.LFG_PATTERN.match(message.line):
             lfg_messages.append(message)
         else:
             non_lfg_messages.append(message)
@@ -116,7 +117,7 @@ async def create_lfg_embed(discord_message, old_messages, new_messages):
     for message in messages_to_embed:
         message_map[message.player] = message
     messages_to_embed = list(message_map.values())
-    messages_to_embed.sort()
+    messages_to_embed.sort(reverse=True)
     for message in messages_to_embed:
         duration = int((float(new_messages[-1].timestamp) - float(message.timestamp)) / 60)
         if duration <= 60:
@@ -125,8 +126,6 @@ async def create_lfg_embed(discord_message, old_messages, new_messages):
                 readable_duration = 'just now'
             if duration == 1:
                 readable_duration = str(duration) + ' minute ago'
-            if len(embed.fields) >= 25:
-                embed.remove_field(0)
             embed.add_field(name=(message.timestamp + ':  ' + message.player), value=(readable_duration + ': ' + message.line), inline=False)
     if discord_message:
         await discord_message.edit(embed=embed)

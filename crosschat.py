@@ -93,7 +93,7 @@ async def update_lfg(messages: list[Message]) -> list[Message]:
                     line = field.value.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1].strip()
                     message = Message(timestamp, player, line)
                     old_messages.append(message)
-            old_messages.sort(reverse=True)
+            old_messages.sort()
             return await create_lfg_embed(discord_message, old_messages, messages)
         else:
             return await create_lfg_embed(None, [], messages)
@@ -114,7 +114,7 @@ async def update_lfg_embed():
                 line = field.value.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1].strip()
                 message = Message(timestamp, player, line)
                 old_messages.append(message)
-        old_messages.sort()
+        old_messages.sort(reverse=True)
         embed = discord.Embed(title=discord_message.embeds[0].title, description=discord_message.embeds[0].description)
         for message in old_messages:
             duration = int((float(time.time()) - float(message.timestamp)) / 60)

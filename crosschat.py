@@ -90,7 +90,7 @@ async def update_lfg(messages: list[Message]) -> list[Message]:
                 if field.name and field.value:
                     timestamp = field.name.split(':')[0]
                     player = field.name.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1].strip()
-                    line = field.value.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").partition(':')[1].strip()
+                    line = ''.join(field.value.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1:]).strip()
                     message = Message(timestamp, player, line)
                     old_messages.append(message)
             old_messages.sort()
@@ -111,7 +111,7 @@ async def update_lfg_embed():
             if field.name and field.value:
                 timestamp = field.name.split(':')[0]
                 player = field.name.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1].strip()
-                line = field.value.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").partition(':')[1].strip()
+                line = ''.join(field.value.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1:]).strip()
                 message = Message(timestamp, player, line)
                 old_messages.append(message)
         old_messages.sort(reverse=True)

@@ -132,9 +132,10 @@ async def create_lfg_embed(discord_message, old_messages, new_messages):
     lfg_messages = []
     non_lfg_messages = []
     for message in new_messages:
+        if constants.BOOST_PATTERN.match(message.line):
+            continue
         if constants.LFG_PATTERN.match(message.line):
-            if not constants.BOOST_PATTERN.match(message.line):
-                lfg_messages.append(message)
+            lfg_messages.append(message)
         else:
             non_lfg_messages.append(message)
     embed = discord.Embed(title='LookingForGroup', description=new_messages[-1].timestamp)

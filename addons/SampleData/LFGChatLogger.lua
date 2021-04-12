@@ -22,6 +22,6 @@ LFGCHATLOG = {
 	},
 	[1618074611.58519] = {
 		"Illz", -- [1]
-		"LF1M SM ALL WINGS 1TANK", -- [2]
+		"WTS EXP ZG BOOST(11 Pack 50+mobs||200+rep LVL50-59)Solo 45g (25-30k xp) Duo 23g(20-25k xp/run) Trio 18g(15-20k xp/run)Last spot (2-3)ready to go", -- [2]
 	},
 }

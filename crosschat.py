@@ -93,7 +93,7 @@ async def update_lfg(messages: list[Message]) -> list[Message]:
                     line = field.value.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1].strip()
                     message = Message(timestamp, player, line)
                     old_messages.append(message)
-            old_messages.sort()
+            old_messages.sort(reverse=True)
             return await create_lfg_embed(discord_message, old_messages, messages)
         else:
             return await create_lfg_embed(None, [], messages)

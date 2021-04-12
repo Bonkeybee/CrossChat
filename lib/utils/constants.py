@@ -11,7 +11,7 @@ ENCHANT_REPLACE_REGEX = '\|(.+Henchant:([0-9]+).+)\|r'
 ENCHANT_PATTERN = re.compile('.*' + ENCHANT_REPLACE_REGEX + '.*')
 
 LFG_PATTERN = re.compile('.*(lf|lfm|lfg|looking|any|anyone|need|tank[s]*|heal[s]*|dps).*( )([/]*(tank[s]*|heal[s]*|healer[s]*|dps|pvp|mara|zg|zf|rfd|bfd|ubrs|lbrs|ulda|aq|aq20|aq40|st|brd|sfk|sm|dm|deadmine[s]*|stockade[s]*|stock[s]*|gnomer|gnomeregan|strat|scholo|scholomance|dungeon)[/]*\\b).*', re.IGNORECASE)
-BOOST_PATTERN = re.compile('.*(wtb|boost|gdkp).*', re.IGNORECASE)
+BOOST_PATTERN = re.compile('.*(wtb|wts|boost|gdkp).*', re.IGNORECASE)
 
 SKULL = '{skull}'
 CROSS = '{cross}'

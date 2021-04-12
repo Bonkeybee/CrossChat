@@ -85,15 +85,7 @@ async def update_lfg(messages: list[Message]) -> list[Message]:
             discord_message: discord.Message = await bot.get_channel(int(settings.load()['discord']['lfg_crosschat_channel_id'])).fetch_message(int(settings.load()['state']['lfg_embed_message_id']))
             if not discord_message.embeds:
                 return await create_lfg_embed(discord_message, [], messages)
-            old_messages = []
-            for field in discord_message.embeds[0].fields:
-                if field.name and field.value:
-                    timestamp = field.name.split(':')[0]
-                    player = field.name.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1].strip()
-                    line = ''.join(field.value.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1:]).strip()
-                    if line:
-                        message = Message(timestamp, player, line)
-                        old_messages.append(message)
+            old_messages = handle_old_messages(discord_message)
             old_messages.sort()
             return await create_lfg_embed(discord_message, old_messages, messages)
         else:
@@ -102,32 +94,41 @@ async def update_lfg(messages: list[Message]) -> list[Message]:
         await update_lfg_embed()
 
 
+def handle_old_messages(discord_message):
+    old_messages = []
+    for field in discord_message.embeds[0].fields:
+        if field.name and field.value:
+            timestamp = field.name.split(':')[0]
+            player = field.name.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1].strip()
+            line = ''.join(field.value.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1:]).strip()
+            if line:
+                message = Message(timestamp, player, line)
+                old_messages.append(message)
+    return old_messages
+
+
 async def update_lfg_embed():
     if settings.load().has_section('state') and settings.load().has_option('state', 'lfg_embed_message_id'):
         discord_message: discord.Message = await bot.get_channel(int(settings.load()['discord']['lfg_crosschat_channel_id'])).fetch_message(int(settings.load()['state']['lfg_embed_message_id']))
         if not discord_message or not discord_message.embeds:
             return
-        old_messages = []
-        for field in discord_message.embeds[0].fields:
-            if field.name and field.value:
-                timestamp = field.name.split(':')[0]
-                player = field.name.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1].strip()
-                line = ''.join(field.value.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1:]).strip()
-                if line:
-                    message = Message(timestamp, player, line)
-                    old_messages.append(message)
+        old_messages = handle_old_messages(discord_message)
         old_messages.sort(reverse=True)
         embed = discord.Embed(title=discord_message.embeds[0].title, description=discord_message.embeds[0].description)
-        for message in old_messages:
-            duration = int((float(time.time()) - float(message.timestamp)) / 60)
-            if duration <= 60:
-                readable_duration = str(duration) + ' minutes ago'
-                if duration == 0:
-                    readable_duration = 'just now'
-                if duration == 1:
-                    readable_duration = str(duration) + ' minute ago'
-                embed.add_field(name=(message.timestamp + ':  ' + message.player), value=(readable_duration + ': ' + message.line), inline=False)
+        add_lfg_fields(old_messages, embed)
         await discord_message.edit(embed=embed)
+
+
+def add_lfg_fields(old_messages, embed):
+    for message in old_messages:
+        duration = int((float(time.time()) - float(message.timestamp)) / 60)
+        if duration <= 60:
+            readable_duration = str(duration) + ' minutes ago'
+            if duration == 0:
+                readable_duration = 'just now'
+            if duration == 1:
+                readable_duration = str(duration) + ' minute ago'
+            embed.add_field(name=(message.timestamp + ':  ' + message.player), value=(readable_duration + ': ' + message.line), inline=False)
 
 
 async def create_lfg_embed(discord_message, old_messages, new_messages):
@@ -149,15 +150,7 @@ async def create_lfg_embed(discord_message, old_messages, new_messages):
         message_map[message.player] = message
     messages_to_embed = list(message_map.values())
     messages_to_embed.sort(reverse=True)
-    for message in messages_to_embed:
-        duration = int((float(time.time()) - float(message.timestamp)) / 60)
-        if duration <= 60:
-            readable_duration = str(duration) + ' minutes ago'
-            if duration == 0:
-                readable_duration = 'just now'
-            if duration == 1:
-                readable_duration = str(duration) + ' minute ago'
-            embed.add_field(name=(message.timestamp + ':  ' + message.player), value=(readable_duration + ': ' + message.line), inline=False)
+    add_lfg_fields(messages_to_embed, embed)
     if discord_message:
         await discord_message.edit(embed=embed)
     else:

@@ -10,7 +10,7 @@ ITEM_PATTERN = re.compile('.*' + ITEM_REPLACE_REGEX + '.*')
 ENCHANT_REPLACE_REGEX = '\|(.+Henchant:([0-9]+).+)\|r'
 ENCHANT_PATTERN = re.compile('.*' + ENCHANT_REPLACE_REGEX + '.*')
 
-LFG_PATTERN = re.compile('.*(lf|lfm|lfg|looking).*( [/]*(pvp|mara|zg|zf|ubrs|aq|aq20|aq40|st|brd|sfk|sm|dm|deadmine[s]|stockade[s]|stock[s]|gnomer|gnomeregan|strat|dungeon)\\b).*', re.IGNORECASE)
+LFG_PATTERN = re.compile('.*(lf|lfm|lfg|looking).*( [/]*(pvp|mara|zg|zf|ubrs|aq|aq20|aq40|st|brd|sfk|sm|dm|deadmine[s]|stockade[s]|stock[s]|gnomer|gnomeregan|strat|scholo|scholomance|dungeon)\\b).*', re.IGNORECASE)
 
 SKULL = '{skull}'
 CROSS = '{cross}'

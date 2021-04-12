@@ -103,7 +103,6 @@ async def create_lfg_embed(discord_message, old_messages, new_messages):
     lfg_messages = []
     non_lfg_messages = []
     for message in new_messages:
-        beep = constants.LFG_PATTERN.match(message.line)
         if constants.LFG_PATTERN.match(message.line):
             lfg_messages.append(message)
         else:

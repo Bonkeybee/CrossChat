@@ -15,7 +15,7 @@ def load_chat_log(path):
     chat_log = None
     while chat_log is None:
         try:
-            with open(path, mode='r', encoding='LATIN-1') as chat_log_file:
+            with open(path, mode='r', encoding='UTF-8') as chat_log_file:
                 chat_log = chat_log_file.readlines()
         except Exception as exception:
             LOG.error(exception)

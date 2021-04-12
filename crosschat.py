@@ -99,8 +99,8 @@ def handle_old_messages(discord_message):
     for field in discord_message.embeds[0].fields:
         if field.name and field.value:
             timestamp = field.name.split(':')[0]
-            player = field.name.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1].strip()
-            line = ''.join(field.value.encode("LATIN-1", "ignore").decode("UTF-8", "ignore").split(':')[1:]).strip()
+            player = field.name.split(':')[1].strip()
+            line = ':'.join(field.value.split(':')[1:]).strip()
             if line:
                 message = Message(timestamp, player, line)
                 old_messages.append(message)

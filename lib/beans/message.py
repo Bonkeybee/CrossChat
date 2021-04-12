@@ -1,8 +1,9 @@
 import logging
 import re
 import time
-import pytz
 from datetime import datetime
+
+import pytz
 
 import settings
 from lib.utils import constants
@@ -14,8 +15,8 @@ class Message:
     """Message class to hold properties parsed from World of Warcraft logging addons"""
     def __init__(self, timestamp, player, line):
         self.timestamp = timestamp
-        self.player = player.encode("LATIN-1", "ignore").decode("UTF-8", "ignore")
-        self.line = replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_mentions(replace_escape_sequences(line))))).encode("LATIN-1", "ignore").decode("UTF-8", "ignore")
+        self.player = player.encode("UTF-8", "ignore").decode("UTF-8", "ignore")
+        self.line = replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_mentions(replace_escape_sequences(line))))).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
 
     def __lt__(self, other) -> bool:
         if type(other) is Message:
@@ -99,14 +100,17 @@ def replace_raidmarks(line: str) -> str:
 
 
 def replace_item_patterns(line):
+    """Replaces World of Warcraft item patterns with wowhead.com urls"""
     return replace_pattern('Mutating(item_patterns): ', constants.ITEM_PATTERN, line, constants.ITEM_REPLACE_REGEX, constants.WOWHEAD_ITEM_URL)
 
 
 def replace_enchant_patterns(line):
+    """Replaces World of Warcraft enchant patterns with wowhead.com urls"""
     return replace_pattern('Mutating(enchant_patterns): ', constants.ENCHANT_PATTERN, line, constants.ENCHANT_REPLACE_REGEX, constants.WOWHEAD_SPELL_URL)
 
 
 def replace_pattern(debug, pattern, line, regex, url):
+    """Replaces World of Warcraft patterns with the supplied url"""
     if pattern.match(line):
         LOG.debug(debug + line)
         split_message = line.split('|r')

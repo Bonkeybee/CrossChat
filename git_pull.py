@@ -1,21 +1,22 @@
+"""Updates the source code of the repo and its dependencies"""
 import shutil
 import subprocess
 
-from lib.utils import constants
 import settings
-
+from lib.utils import constants
 
 print(subprocess.check_output(["git", "pull"]))
 
 
-def update_addon(src_path, wow_path):
-    print('removing ' + wow_path)
-    shutil.rmtree(wow_path, True)
-    print('copying ' + src_path + ' to ' + wow_path)
-    shutil.copytree(src_path, wow_path)
+def update_addon(addon):
+    """Removes and then copies the specified World of Warcraft addon to addons directory"""
+    print('removing ' + settings.load()['wow']['addon_path'] + addon)
+    shutil.rmtree(settings.load()['wow']['addon_path'] + addon, True)
+    print('copying ' + constants.ADDONS + addon + ' to ' + settings.load()['wow']['addon_path'] + addon)
+    shutil.copytree(constants.ADDONS + addon, settings.load()['wow']['addon_path'] + addon)
 
 
-update_addon(constants.ADDONS + constants.BACK_SLASH + constants.GUILDCHATLOGGER_ADDON, settings.load()['wow']['addon_path'] + constants.BACK_SLASH + constants.GUILDCHATLOGGER_ADDON)
-update_addon(constants.ADDONS + constants.BACK_SLASH + constants.OFFICERCHATLOGGER_ADDON, settings.load()['wow']['addon_path'] + constants.BACK_SLASH + constants.OFFICERCHATLOGGER_ADDON)
-update_addon(constants.ADDONS + constants.BACK_SLASH + constants.SYSTEMCHATLOGGER_ADDON, settings.load()['wow']['addon_path'] + constants.BACK_SLASH + constants.SYSTEMCHATLOGGER_ADDON)
-update_addon(constants.ADDONS + constants.BACK_SLASH + constants.LFGCHATLOGGER_ADDON, settings.load()['wow']['addon_path'] + constants.BACK_SLASH + constants.LFGCHATLOGGER_ADDON)
+update_addon(constants.GUILDCHATLOGGER_ADDON)
+update_addon(constants.OFFICERCHATLOGGER_ADDON)
+update_addon(constants.SYSTEMCHATLOGGER_ADDON)
+update_addon(constants.LFGCHATLOGGER_ADDON)

@@ -39,64 +39,112 @@ bot = commands.Bot(command_prefix='!')
 USER_CHANNEL_IDS = {int(settings.load()['discord']['guild_crosschat_channel_id']): 'guild', int(settings.load()['discord']['officer_crosschat_channel_id']): 'officer'}
 
 
-async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, webhook_url_option):
+async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, webhook_url_option, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns):
+    """Reads the World of Warcraft addon chat logs and pushes new messages to the Discord webhook and/or embed"""
     await bot.wait_until_ready()
     while True:
-        messages = []
-        chat_log = load_chat_log(settings.load()['wow'][chat_log_file_option])
-        chat_log_length = len(chat_log)
-        data_start = None
-        for index, line in enumerate(chat_log):
-            if index < chat_log_length - 1:
-                if re.match(starting_key, chat_log[index]):
-                    data_start = index + 1
-                if data_start is not None and ((index + data_start) % 4) == 0:
-                    timestamp, player, message = parse_chat_log(index, chat_log)
-                    add_message(messages, timestamp, player, message, channel)
-        messages.sort()
-        push_all(settings.load()['discord'][webhook_url_option], messages, channel)
-        await asyncio.sleep(1)
-
-
-async def looking_for_group_to_discord_webhook():
-    await bot.wait_until_ready()
-    while True:
-        messages = []
-        chat_log = load_chat_log(settings.load()['wow']['lfg_chat_log_file'])
-        chat_log_length = len(chat_log)
-        data_start = None
-        for index, line in enumerate(chat_log):
-            if index < chat_log_length - 1:
-                if re.match('LFGCHATLOG = {', chat_log[index]):
-                    data_start = index + 1
-                if data_start is not None and ((index + data_start) % 4) == 0:
-                    timestamp, player, message = parse_chat_log(index, chat_log)
-                    add_message(messages, timestamp, player, message, 'lfg')
-        messages.sort()
-        messages = await update_lfg(messages)
+        messages = get_chat_log_messages(chat_log_file_option, starting_key, channel)
+        if embed_name and embed_channel_id_option and embed_message_id_option:
+            messages = await handle_embed(messages, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns)
         if messages:
-            push_all(settings.load()['discord']['lfg_chat_webhook_url'], messages, 'lfg')
+            push_all(settings.load()['discord'][webhook_url_option], messages, channel)
         await asyncio.sleep(1)
 
 
-async def update_lfg(messages: list[Message]) -> list[Message]:
+def get_chat_log_messages(chat_log_file_option, starting_key, channel):
+    chat_log = load_chat_log(settings.load()['wow'][chat_log_file_option])
+    data_start = None
+    messages = []
+    for index, line in enumerate(chat_log):
+        if index < len(chat_log) - 1:
+            if re.match(starting_key, chat_log[index]):
+                data_start = index + 1
+            if data_start is not None and ((index + data_start) % 4) == 0:
+                timestamp, player, message = parse_chat_log(index, chat_log)
+                add_message(messages, timestamp, player, message, channel)
+    messages.sort()
+    return messages
+
+
+async def handle_embed(messages: list[Message], embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns) -> list[Message]:
     if messages:
-        if settings.load().has_section('state') and settings.load().has_option('state', 'lfg_embed_message_id'):
-            discord_message: discord.Message = await bot.get_channel(int(settings.load()['discord']['lfg_crosschat_channel_id'])).fetch_message(int(settings.load()['state']['lfg_embed_message_id']))
+        if settings.load().has_section('state') and settings.load().has_option('state', embed_message_id_option):
+            discord_message: discord.Message = await bot.get_channel(int(settings.load()['discord'][embed_channel_id_option])).fetch_message(int(settings.load()['state'][embed_message_id_option]))
             if not discord_message.embeds:
-                return await create_lfg_embed(discord_message, [], messages)
-            old_messages = handle_old_messages(discord_message)
+                return await create_or_update_embed(discord_message, [], messages, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns)
+            old_messages = get_old_messages_from_embed(discord_message.embeds[0])
             old_messages.sort()
-            return await create_lfg_embed(discord_message, old_messages, messages)
+            return await create_or_update_embed(discord_message, old_messages, messages, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns)
         else:
-            return await create_lfg_embed(None, [], messages)
+            return await create_or_update_embed(None, [], messages, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns)
     else:
-        await update_lfg_embed()
+        await refresh_embed(embed_channel_id_option, embed_message_id_option)
 
 
-def handle_old_messages(discord_message):
+async def create_or_update_embed(discord_message, old_messages, new_messages, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns):
+    embedded_messages, non_embedded_messages = filter_new_messages(new_messages, bad_patterns, good_patterns)
+    embed = discord.Embed(title=embed_name, description=new_messages[-1].timestamp)
+    messages_to_embed = old_messages + embedded_messages
+    messages_to_embed = list(OrderedDict.fromkeys(messages_to_embed))
+    messages_to_embed.sort()
+    message_map = {}
+    for message in messages_to_embed:
+        message_map[message.player] = message
+    messages_to_embed = list(message_map.values())
+    messages_to_embed.sort(reverse=True)
+    add_embed_fields(messages_to_embed, embed)
+    if discord_message:
+        await discord_message.edit(embed=embed)
+    else:
+        discord_message = await bot.get_channel(int(settings.load()['discord'][embed_channel_id_option])).send(embed=embed)
+        settings.load()['state'][embed_message_id_option] = str(discord_message.id)
+        with open(constants.CONFIG_FILE, 'w') as configfile:
+            settings.load().write(configfile)
+    return non_embedded_messages
+
+
+def filter_new_messages(new_messages, bad_patterns, good_patterns):
+    embedded_messages = []
+    non_embedded_messages = []
+    for message in new_messages:
+        if has_bad_pattern(message, bad_patterns):
+            continue
+        if has_good_pattern(message, good_patterns):
+            embedded_messages.append(message)
+        else:
+            non_embedded_messages.append(message)
+    return embedded_messages, non_embedded_messages
+
+
+def has_bad_pattern(message, bad_patterns):
+    for pattern in bad_patterns:
+        if pattern.match(message.line):
+            return True
+    return False
+
+
+def has_good_pattern(message, good_patterns):
+    for pattern in good_patterns:
+        if pattern.match(message.line):
+            return True
+    return False
+
+
+async def refresh_embed(embed_channel_id_option, embed_message_id_option):
+    if settings.load().has_section('state') and settings.load().has_option('state', embed_message_id_option):
+        discord_message: discord.Message = await bot.get_channel(int(settings.load()['discord'][embed_channel_id_option])).fetch_message(int(settings.load()['state'][embed_message_id_option]))
+        if not discord_message or not discord_message.embeds:
+            return
+        old_messages = get_old_messages_from_embed(discord_message.embeds[0])
+        old_messages.sort(reverse=True)
+        embed = discord.Embed(title=discord_message.embeds[0].title, description=discord_message.embeds[0].description)
+        add_embed_fields(old_messages, embed)
+        await discord_message.edit(embed=embed)
+
+
+def get_old_messages_from_embed(discord_embed):
     old_messages = []
-    for field in discord_message.embeds[0].fields:
+    for field in discord_embed.fields:
         if field.name and field.value:
             timestamp = field.name.split(':')[0]
             player = field.name.split(':')[1].strip()
@@ -107,19 +155,7 @@ def handle_old_messages(discord_message):
     return old_messages
 
 
-async def update_lfg_embed():
-    if settings.load().has_section('state') and settings.load().has_option('state', 'lfg_embed_message_id'):
-        discord_message: discord.Message = await bot.get_channel(int(settings.load()['discord']['lfg_crosschat_channel_id'])).fetch_message(int(settings.load()['state']['lfg_embed_message_id']))
-        if not discord_message or not discord_message.embeds:
-            return
-        old_messages = handle_old_messages(discord_message)
-        old_messages.sort(reverse=True)
-        embed = discord.Embed(title=discord_message.embeds[0].title, description=discord_message.embeds[0].description)
-        add_lfg_fields(old_messages, embed)
-        await discord_message.edit(embed=embed)
-
-
-def add_lfg_fields(old_messages, embed):
+def add_embed_fields(old_messages, embed):
     for message in old_messages:
         duration = int((float(time.time()) - float(message.timestamp)) / 60)
         if duration <= 60:
@@ -129,38 +165,6 @@ def add_lfg_fields(old_messages, embed):
             if duration == 1:
                 readable_duration = str(duration) + ' minute ago'
             embed.add_field(name=(message.timestamp + ':  ' + message.player), value=(readable_duration + ': ' + message.line), inline=False)
-
-
-async def create_lfg_embed(discord_message, old_messages, new_messages):
-    lfg_messages = []
-    non_lfg_messages = []
-    for message in new_messages:
-        if constants.BOOST_PATTERN.match(message.line):
-            continue
-        if constants.GUILD_PATTERN.match(message.line):
-            continue
-        if constants.LFG_PATTERN.match(message.line):
-            lfg_messages.append(message)
-        else:
-            non_lfg_messages.append(message)
-    embed = discord.Embed(title='LookingForGroup', description=new_messages[-1].timestamp)
-    messages_to_embed = old_messages + lfg_messages
-    messages_to_embed = list(OrderedDict.fromkeys(messages_to_embed))
-    messages_to_embed.sort()
-    message_map = {}
-    for message in messages_to_embed:
-        message_map[message.player] = message
-    messages_to_embed = list(message_map.values())
-    messages_to_embed.sort(reverse=True)
-    add_lfg_fields(messages_to_embed, embed)
-    if discord_message:
-        await discord_message.edit(embed=embed)
-    else:
-        discord_message = await bot.get_channel(int(settings.load()['discord']['lfg_crosschat_channel_id'])).send(embed=embed)
-        settings.load()['state']['lfg_embed_message_id'] = str(discord_message.id)
-        with open(constants.CONFIG_FILE, 'w') as configfile:
-            settings.load().write(configfile)
-    return non_lfg_messages
 
 
 # DISCORD STUFF
@@ -216,10 +220,10 @@ async def on_message(message):
 
 # noinspection PyBroadException
 try:
-    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url'))
-    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('officer_chat_log_file', 'OFFICERCHATLOG = {', 'officer', 'officer_chat_webhook_url'))
-    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('system_chat_log_file', 'SYSTEMCHATLOG = {', 'system', 'system_chat_webhook_url'))
-    asyncio.get_event_loop().create_task(looking_for_group_to_discord_webhook())
+    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url', None, None, None, None, None))
+    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('officer_chat_log_file', 'OFFICERCHATLOG = {', 'officer', 'officer_chat_webhook_url', None, None, None, None, None))
+    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('system_chat_log_file', 'SYSTEMCHATLOG = {', 'system', 'system_chat_webhook_url', None, None, None, None, None))
+    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('lfg_chat_log_file', 'LFGCHATLOG = {', 'lfg', 'lfg_chat_webhook_url', 'LookingForGroup', 'lfg_crosschat_channel_id', 'lfg_embed_message_id', [constants.BOOST_PATTERN, constants.GUILD_PATTERN], [constants.LFG_PATTERN]))
     asyncio.get_event_loop().create_task(bot.run(settings.load()['discord']['token']))
 except Exception as e:
     LOG.exception('Unexpected exception')

@@ -137,6 +137,8 @@ async def create_lfg_embed(discord_message, old_messages, new_messages):
     for message in new_messages:
         if constants.BOOST_PATTERN.match(message.line):
             continue
+        if constants.GUILD_PATTERN.match(message.line):
+            continue
         if constants.LFG_PATTERN.match(message.line):
             lfg_messages.append(message)
         else:

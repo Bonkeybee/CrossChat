@@ -67,6 +67,7 @@ def get_chat_log_messages(chat_log_file_option, starting_key, channel):
 
 
 async def handle_embed(messages: list[Message], embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns) -> list[Message]:
+    """Process messages """
     if messages:
         if settings.load().has_section('state') and settings.load().has_option('state', embed_message_id_option):
             discord_message: discord.Message = await bot.get_channel(int(settings.load()['discord'][embed_channel_id_option])).fetch_message(int(settings.load()['state'][embed_message_id_option]))
@@ -82,6 +83,7 @@ async def handle_embed(messages: list[Message], embed_name, embed_channel_id_opt
 
 
 async def create_or_update_embed(discord_message, old_messages, new_messages, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns):
+    """Create or update a discord embed"""
     embedded_messages, non_embedded_messages = filter_new_messages(new_messages, bad_patterns, good_patterns)
     embed = discord.Embed(title=embed_name, description=new_messages[-1].timestamp)
     messages_to_embed = old_messages + embedded_messages
@@ -104,6 +106,7 @@ async def create_or_update_embed(discord_message, old_messages, new_messages, em
 
 
 def filter_new_messages(new_messages, bad_patterns, good_patterns):
+    """Filter the messages and return the messages that will and will not be embedded"""
     embedded_messages = []
     non_embedded_messages = []
     for message in new_messages:
@@ -117,6 +120,7 @@ def filter_new_messages(new_messages, bad_patterns, good_patterns):
 
 
 def has_bad_pattern(message, bad_patterns):
+    """Check if the message has any bad patterns"""
     for pattern in bad_patterns:
         if pattern.match(message.line):
             return True
@@ -124,6 +128,7 @@ def has_bad_pattern(message, bad_patterns):
 
 
 def has_good_pattern(message, good_patterns):
+    """Check if the message has any good patterns"""
     for pattern in good_patterns:
         if pattern.match(message.line):
             return True
@@ -131,6 +136,7 @@ def has_good_pattern(message, good_patterns):
 
 
 async def refresh_embed(embed_channel_id_option, embed_message_id_option):
+    """Refresh the messages in the embed with new timestamps"""
     if settings.load().has_section('state') and settings.load().has_option('state', embed_message_id_option):
         discord_message: discord.Message = await bot.get_channel(int(settings.load()['discord'][embed_channel_id_option])).fetch_message(int(settings.load()['state'][embed_message_id_option]))
         if not discord_message or not discord_message.embeds:
@@ -143,6 +149,7 @@ async def refresh_embed(embed_channel_id_option, embed_message_id_option):
 
 
 def get_old_messages_from_embed(discord_embed):
+    """Parse the previously sent messages from the embed"""
     old_messages = []
     for field in discord_embed.fields:
         if field.name and field.value:
@@ -156,6 +163,7 @@ def get_old_messages_from_embed(discord_embed):
 
 
 def add_embed_fields(old_messages, embed):
+    """Add messages to the embed fields"""
     for message in old_messages:
         duration = int((float(time.time()) - float(message.timestamp)) / 60)
         if duration <= 60:

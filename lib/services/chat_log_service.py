@@ -1,3 +1,4 @@
+"""Handles the loading and parsing of the World of Warcraft chat log files"""
 import logging
 import time
 
@@ -5,6 +6,7 @@ LOG = logging.getLogger(__name__)
 
 
 def parse_chat_log(index, chat_log):
+    """Parses the World of Warcraft chat log file"""
     timestamp = chat_log[index].split('[')[1].split(']')[0]
     player = chat_log[index + 1].split('"')[1]
     line = chat_log[index + 2].replace('\\"', '\'').split('"')[1]
@@ -12,6 +14,7 @@ def parse_chat_log(index, chat_log):
 
 
 def load_chat_log(path):
+    """Loads the World of Warcraft chat log file from the specified path"""
     chat_log = None
     while chat_log is None:
         try:

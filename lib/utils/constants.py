@@ -1,3 +1,4 @@
+"""Defines several constants to be used by the project"""
 import re
 
 MENTION_PATTERN = re.compile('<@.+>')
@@ -12,10 +13,12 @@ ENCHANT_PATTERN = re.compile('.*' + ENCHANT_REPLACE_REGEX + '.*')
 
 
 def group(regex):
+    """Wraps the regex as a group"""
     return '(' + regex + ')'
 
 
 def word(regex):
+    """Wraps the regex as a word"""
     return '\\b' + regex + '\\b'
 
 

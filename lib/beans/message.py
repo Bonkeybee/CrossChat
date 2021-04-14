@@ -1,3 +1,4 @@
+"""Defines the Message class and its various components and formatting"""
 import logging
 import re
 import time

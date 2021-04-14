@@ -52,6 +52,7 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
 
 
 def get_chat_log_messages(chat_log_file_option, starting_key, channel):
+    """Loads and parses the World of Warcraft chat log and returns a sorted list of message objects"""
     chat_log = load_chat_log(settings.load()['wow'][chat_log_file_option])
     data_start = None
     messages = []

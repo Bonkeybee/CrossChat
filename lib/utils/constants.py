@@ -32,11 +32,11 @@ RC = '>'
 LETTER = '[a-z ]'
 LETTERS = LETTER + EXIST
 EMOJI_REGEX = group(':' + LETTERS + ':')
-LOOKING_REGEX = group('lf|lfm|lfg|looking|any|anyone|need')
+LOOKING_REGEX = group('lf[1-9 ]*|lf[1-9 ]*m|lfm[1-9 ]*|lfg|looking|any|anyone|need')
 ROLE_CLASS_REGEX = group('tanks*|heals*|healers*|dps|druid|hunter|mage|paladin|priest|rogue|shaman|warlock|warrior')
 ANYTHING_REGEX = group('whatever|any|quest')
 PVP_REGEX = group('pvp|arena|battlegrounds*')
-DUNGEON_REGEX = group('rfc|wc|dm|deadmines*|sfk|bfd|stockades*|stocks*|gnomer|gnomeregan|rfk|sm|rfd|uld|ulda|uldaman|zf|mara|maraudon|princess|st|brd|lbrs|ubrs|dme|dmw|dmn|dire|diremaul|scholo|scholomance|strat|mc|molten|ony|onyxia|zg|zul|gurub|bwl|blackwing|aq|ahn\'qirah|aq20|aq40|naxx|naxxramas|dungeon|lair')
+DUNGEON_REGEX = group('rfc|wc|dm|deadmines*|sfk|bfd|stockades*|stocks*|gnomer|gnomeregan|rfk|sm|rfd|uld|ulda|uldaman|zf|mara|maraudon|princess|st|sunken|temple|brd|lbrs|ubrs|dme|dmw|dmn|dire|diremaul|scholo|scholomance|strat|mc|molten|ony|onyxia|zg|zul|gurub|bwl|blackwing|aq|ahn\'qirah|aq20|aq40|naxx|naxxramas|dungeon|lair')
 BOOST_REGEX = group('wtb|wts|boosts*|gdkp')
 LOOKING_FOR = group(
     group(word(LOOKING_REGEX)) + EXIST + OR +

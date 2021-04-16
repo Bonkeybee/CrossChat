@@ -20,7 +20,7 @@ def load_chat_log(path):
         try:
             with open(path, mode='r', encoding='UTF-8') as chat_log_file:
                 chat_log = chat_log_file.readlines()
-        except Exception as exception:
-            LOG.error(exception)
+        except OSError:
+            LOG.warning('Loading chat log file failed, retrying...', exc_info=True)
             time.sleep(1)
     return chat_log

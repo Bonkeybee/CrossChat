@@ -9,6 +9,7 @@ from os import system
 import discord
 import pyautogui
 from better_profanity import profanity
+from discord import HTTPException
 from discord.ext import commands
 from tendo import singleton
 
@@ -139,7 +140,7 @@ def has_good_pattern(message, good_patterns):
 async def refresh_embed(embed_channel_id_option, embed_message_id_option):
     """Refresh the messages in the embed with new timestamps"""
     if settings.load().has_section('state') and settings.load().has_option('state', embed_message_id_option):
-        discord_message: discord.Message = await bot.get_channel(int(settings.load()['discord'][embed_channel_id_option])).fetch_message(int(settings.load()['state'][embed_message_id_option]))
+        discord_message: discord.Message = await get_message_with_retry(int(settings.load()['discord'][embed_channel_id_option]), int(settings.load()['state'][embed_message_id_option]), 0)
         if not discord_message or not discord_message.embeds:
             return
         old_messages = get_old_messages_from_embed(discord_message.embeds[0])
@@ -147,6 +148,16 @@ async def refresh_embed(embed_channel_id_option, embed_message_id_option):
         embed = discord.Embed(title=discord_message.embeds[0].title, description=discord_message.embeds[0].description)
         add_embed_fields(old_messages, embed)
         await discord_message.edit(embed=embed)
+
+
+async def get_message_with_retry(channel_id, message_id, attempts):
+    """Gets a discord message with 5 retries"""
+    try:
+        return await bot.get_channel(channel_id).fetch_message(message_id)
+    except HTTPException as exception:
+        if exception.code == 504 and attempts <= 5:
+            await asyncio.sleep(pow(attempts + 1, 2))
+            return await get_message_with_retry(channel_id, message_id, attempts + 1)
 
 
 def get_old_messages_from_embed(discord_embed):
@@ -229,10 +240,10 @@ async def on_message(message):
 
 # noinspection PyBroadException
 try:
-    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url', None, None, None, None, None))
-    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('officer_chat_log_file', 'OFFICERCHATLOG = {', 'officer', 'officer_chat_webhook_url', None, None, None, None, None))
-    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('system_chat_log_file', 'SYSTEMCHATLOG = {', 'system', 'system_chat_webhook_url', None, None, None, None, None))
-    asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('lfg_chat_log_file', 'LFGCHATLOG = {', 'lfg', 'lfg_chat_webhook_url', 'LookingForGroup', 'lfg_crosschat_channel_id', 'lfg_embed_message_id', [constants.BOOST_PATTERN, constants.GUILD_PATTERN], [constants.LFG_PATTERN]))
-    asyncio.get_event_loop().create_task(bot.run(settings.load()['discord']['token']))
+    guildchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url', None, None, None, None, None))
+    officerchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('officer_chat_log_file', 'OFFICERCHATLOG = {', 'officer', 'officer_chat_webhook_url', None, None, None, None, None))
+    systemchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('system_chat_log_file', 'SYSTEMCHATLOG = {', 'system', 'system_chat_webhook_url', None, None, None, None, None))
+    lfgchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('lfg_chat_log_file', 'LFGCHATLOG = {', 'lfg', 'lfg_chat_webhook_url', 'LookingForGroup', 'lfg_crosschat_channel_id', 'lfg_embed_message_id', [constants.BOOST_PATTERN, constants.GUILD_PATTERN], [constants.LFG_PATTERN]))
+    discordbot = asyncio.get_event_loop().create_task(bot.run(settings.load()['discord']['token']))
 except Exception as e:
     LOG.exception('Unexpected exception')

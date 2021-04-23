@@ -49,7 +49,7 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
             messages = await handle_embed(messages, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns)
         if messages:
             push_all(settings.load()['discord'][webhook_url_option], messages, channel)
-        await asyncio.sleep(1)
+        await asyncio.sleep(6)
 
 
 def get_chat_log_messages(chat_log_file_option, starting_key, channel):

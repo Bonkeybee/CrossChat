@@ -51,7 +51,7 @@ open() {
 }
 
 launch() {
-	close(false)
+	close(true)
 	open()
 	sleep(3000) ;Wait for programs to open
 }

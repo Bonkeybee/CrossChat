@@ -17,7 +17,7 @@ class Message:
     def __init__(self, timestamp, player, line):
         self.timestamp = timestamp
         self.player = player.encode("UTF-8", "ignore").decode("UTF-8", "ignore")
-        self.line = replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_mentions(replace_escape_sequences(line))))).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
+        self.line = replace_talent_patterns(replace_spell_patterns(replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_mentions(replace_escape_sequences(line))))))).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
 
     def __lt__(self, other) -> bool:
         if type(other) is Message:

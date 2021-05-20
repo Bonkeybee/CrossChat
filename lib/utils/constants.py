@@ -11,6 +11,12 @@ ITEM_PATTERN = re.compile('.*' + ITEM_REPLACE_REGEX + '.*')
 ENCHANT_REPLACE_REGEX = '\|(.+Henchant:([0-9]+).+)\|r'
 ENCHANT_PATTERN = re.compile('.*' + ENCHANT_REPLACE_REGEX + '.*')
 
+SPELL_REPLACE_REGEX = '\|(.+Hspell:([0-9]+).+)\|r'
+SPELL_PATTERN = re.compile('.*' + SPELL_REPLACE_REGEX + '.*')
+
+TALENT_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+(\[[a-zA-Z ]+\]).*)\|r'
+TALENT_PATTERN = re.compile('.*' + TALENT_REPLACE_REGEX + '.*')
+
 
 def group(regex):
     """Wraps the regex as a group"""
@@ -74,8 +80,8 @@ DIAMOND = '{diamond}'
 CIRCLE = '{circle}'
 STAR = '{star}'
 
-WOWHEAD_ITEM_URL = 'https://classic.wowhead.com/item='
-WOWHEAD_SPELL_URL = 'https://classic.wowhead.com/spell='
+WOWHEAD_ITEM_URL = 'https://tbc.wowhead.com/item='
+WOWHEAD_SPELL_URL = 'https://tbc.wowhead.com/spell='
 TIMESTAMP_FILE = 'lastTimestamp.txt'
 
 CONFIG_FILE = 'config\config.ini'

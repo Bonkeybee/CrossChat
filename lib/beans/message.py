@@ -110,6 +110,16 @@ def replace_enchant_patterns(line):
     return replace_pattern('Mutating(enchant_patterns): ', constants.ENCHANT_PATTERN, line, constants.ENCHANT_REPLACE_REGEX, constants.WOWHEAD_SPELL_URL)
 
 
+def replace_spell_patterns(line):
+    """Replaces World of Warcraft enchant patterns with wowhead.com urls"""
+    return replace_pattern('Mutating(spell_patterns): ', constants.SPELL_PATTERN, line, constants.SPELL_REPLACE_REGEX, constants.WOWHEAD_SPELL_URL)
+
+
+def replace_talent_patterns(line):
+    """Replaces World of Warcraft enchant patterns with wowhead.com urls"""
+    return replace_pattern('Mutating(talent_patterns): ', constants.TALENT_PATTERN, line, constants.TALENT_REPLACE_REGEX, None)
+
+
 def replace_pattern(debug, pattern, line, regex, url):
     """Replaces World of Warcraft patterns with the supplied url"""
     if pattern.match(line):
@@ -119,7 +129,10 @@ def replace_pattern(debug, pattern, line, regex, url):
         for split in split_message:
             split_match = pattern.match(split + '|r')
             if split_match:
-                split = re.sub(regex, url + split_match.group(2), split + '|r')
+                if url:
+                    split = re.sub(regex, url + split_match.group(2), split + '|r')
+                else:
+                    split = re.sub(regex, split_match.group(2), split + '|r')
                 line = line + split + ' '
             else:
                 line = line + split

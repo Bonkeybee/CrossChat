@@ -45,7 +45,10 @@ LOOKING_REGEX = group('lf[1-9 ]*|lf[1-9 ]*m|lfm[1-9 ]*|lfg|looking|any|anyone|ne
 ROLE_CLASS_REGEX = group('tanks*|heals*|healers*|dps|druid|hunter|mage|paladin|priest|rogue|shaman|warlock|warrior')
 ANYTHING_REGEX = group('whatever|any|quest')
 PVP_REGEX = group('pvp|arena|battlegrounds*')
-DUNGEON_REGEX = group('rfc|wc|dm|deadmines*|sfk|bfd|stockades*|stocks*|gnomer|gnomeregan|rfk|sm|rfd|uld|ulda|uldaman|zf|mara|maraudon|princess|st|sunken|temple|brd|lbrs|ubrs|dme|dmw|dmn|dire|diremaul|scholo|scholomance|strat|strath|mc|molten|ony|onyxia|zg|zul|gurub|bwl|blackwing|aq|ahn\'qirah|aq20|aq40|naxx|naxxramas|dungeon|lair')
+DUNGEON_REGEX_VANILLA = 'rfc|wc|dm|deadmines*|sfk|bfd|stockades*|stocks*|gnomer|gnomeregan|rfk|sm|rfd|uld|ulda|uldaman|zf|mara|maraudon|princess|st|sunken|temple|brd|lbrs|ubrs|dme|dmw|dmn|dire|diremaul|scholo|scholomance|strat|strath|dungeon'
+RAID_REGEX_VANILLA = 'mc|molten|ony|onyxia|zg|zul|gurub|bwl|blackwing|aq|ahn\'qirah|aq20|aq40|naxx|naxxramas|lair'
+DUNGEON_REGEX_TBC = 'ramps*|ramparts*|bf'
+DUNGEON_REGEX = group(DUNGEON_REGEX_VANILLA + OR + RAID_REGEX_VANILLA + OR + DUNGEON_REGEX_TBC)
 BOOST_REGEX = group('wtb|wts|boosts*|gdkp')
 LOOKING_FOR = group(
     group(word(LOOKING_REGEX)) + EXIST + OR +

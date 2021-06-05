@@ -178,6 +178,8 @@ def add_embed_fields(old_messages, embed):
     """Add messages to the embed fields"""
     for message in old_messages:
         message.line = re.sub('\\btank\\b', '<@&588127212943704065>', message.line, re.IGNORECASE)
+        message.line = re.sub('\\bheals\\b', '<@&588127189434892288>', message.line, re.IGNORECASE)
+        message.line = re.sub('\\bdps\\b', '<@&588127168098336768>', message.line, re.IGNORECASE)
         duration = int((float(time.time()) - float(message.timestamp)) / 60)
         if duration <= 60:
             readable_duration = str(duration) + ' minutes ago'

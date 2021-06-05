@@ -184,7 +184,7 @@ def add_embed_fields(old_messages, embed):
                 readable_duration = 'just now'
             if duration == 1:
                 readable_duration = str(duration) + ' minute ago'
-            embed.add_field(name=(message.timestamp + ':  ' + message.player), value=(readable_duration + ': ' + message.line), inline=False)
+            embed.add_field(name=(message.timestamp + ':  ' + message.player), value=(readable_duration + ': ' + message.line), inline=True)
 
 
 # DISCORD STUFF

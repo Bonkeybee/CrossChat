@@ -169,7 +169,7 @@ def get_old_messages_from_embed(discord_embed):
             player = field.name.split(':')[1].strip()
             line = ':'.join(field.value.split(':')[1:]).strip()
             if line:
-                message = Message(timestamp, player, line)\
+                message = Message(timestamp, player, line)
                 old_messages.append(message)
     return old_messages
 

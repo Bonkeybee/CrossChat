@@ -166,12 +166,12 @@ def get_old_messages_from_embed(discord_embed):
     old_messages = []
     for field in discord_embed.fields:
         if field.name and field.value:
-            timestamp = field.name.split(':')[0]
+            timestamp = field.value.split('|')[-1]
             if any(c in 'abcdefABCDEF' for c in timestamp):
                 timestamp_major = int(timestamp.split('.')[0], 16)
                 timestamp_minor = int(timestamp.split('.')[1], 16)
                 timestamp = str(timestamp_major) + '.' + str(timestamp_minor)
-            player = field.name.split(':')[1].strip()
+            player = field.name.strip()
             line = ':'.join(field.value.split(':')[1:]).strip()
             if line:
                 message = Message(timestamp, player, line)
@@ -182,7 +182,7 @@ def get_old_messages_from_embed(discord_embed):
 def add_embed_fields(old_messages, embed):
     """Add messages to the embed fields"""
     for message in old_messages:
-        message.line = re.compile('\\b(tank)\\b', re.IGNORECASE).sub('<@&588127212943704065>', message.line)
+        message.line = re.compile('\\b(tank|tanks)\\b', re.IGNORECASE).sub('<@&588127212943704065>', message.line)
         message.line = re.compile('\\b(heals|healer)\\b', re.IGNORECASE).sub('<@&588127189434892288>', message.line)
         message.line = re.compile('\\b(dps)\\b', re.IGNORECASE).sub('<@&588127168098336768>', message.line)
         message.line = re.compile('\\b(all)\\b', re.IGNORECASE).sub('<@&588127212943704065><@&588127189434892288><@&588127168098336768>', message.line)
@@ -195,7 +195,7 @@ def add_embed_fields(old_messages, embed):
                 readable_duration = str(duration) + ' minute ago'
             timestamp_major = hex(int(message.timestamp.split('.')[0]))[2:]
             timestamp_minor = hex(int(message.timestamp.split('.')[1]))[2:]
-            embed.add_field(name=(timestamp_major + '.' + timestamp_minor + ':  ' + message.player), value=(readable_duration + ': ' + message.line), inline=True)
+            embed.add_field(name=message.player, value=(readable_duration + ': ' + message.line + ' | ' + timestamp_major + '.' + timestamp_minor), inline=True)
 
 
 # DISCORD STUFF

@@ -41,6 +41,7 @@ RC = '>'
 LETTER = '[a-z ]'
 LETTERS = LETTER + EXIST
 EMOJI_REGEX = group(':' + LETTERS + ':')
+LOOKING_FOR_GROUP_REGEX = group('lfg')
 LOOKING_REGEX = group('lf[1-9 ]*|lf[1-9 ]*m|lfm[1-9 ]*|looking|need')
 ROLE_CLASS_REGEX = group('tanks*|heals*|healers*|dps|druid|hunter|mage|paladin|priest|rogue|shaman|warlock|warrior')
 ANYTHING_REGEX = group('whatever|any|quest')
@@ -64,6 +65,7 @@ LFG_PATTERN = re.compile(ANYTHING + word(
         LOOKING_FOR + ANYTHING + SPACE + ACTIVITY + OR +
         ACTIVITY + ANYTHING + SPACE + LOOKING_FOR
     )) + ANYTHING, re.IGNORECASE)
+LAZY_LFG_PATTERN = re.compile(ANYTHING + word(LOOKING_FOR_GROUP_REGEX) + ANYTHING, re.IGNORECASE)
 BOOST_PATTERN = re.compile(ANYTHING + word(BOOST_REGEX) + ANYTHING, re.IGNORECASE)
 GUILD_PATTERN = re.compile(ANYTHING +
                            group(

@@ -55,6 +55,7 @@ def replace_escape_sequences(line: str) -> str:
     if '*' in line:
         LOG.debug("Mutating(escape_sequences): " + line)
         line = line.replace('*', '\*')
+        line = line.replace('\\\*', '\*')
     return line
 
 

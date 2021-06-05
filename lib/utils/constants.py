@@ -70,9 +70,9 @@ GUILD_PATTERN = re.compile(ANYTHING +
                                group(LB + EMOJI_REGEX + ANY + LETTERS + EMOJI_REGEX + ANY + RB) + OR +
                                group(LC + EMOJI_REGEX + ANY + LETTERS + EMOJI_REGEX + ANY + RC)
                            ) + ANYTHING, re.IGNORECASE)
+print('LFG_PATTERN:  ' + LFG_PATTERN.pattern)
 print('BOOST_PATTERN:  ' + BOOST_PATTERN.pattern)
 print('GUILD_PATTERN:  ' + GUILD_PATTERN.pattern)
-print('LFG_PATTERN:  ' + LFG_PATTERN.pattern)
 
 SKULL = '{skull}'
 CROSS = '{cross}'

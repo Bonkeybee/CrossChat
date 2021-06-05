@@ -1,11 +1,12 @@
 """Handles the discord->game portion of crosschat"""
-import asyncio
 import logging
 import re
+import string
 import time
 from collections import OrderedDict
 from os import system
 
+import asyncio
 import discord
 import pyautogui
 from better_profanity import profanity
@@ -166,9 +167,10 @@ def get_old_messages_from_embed(discord_embed):
     for field in discord_embed.fields:
         if field.name and field.value:
             timestamp = field.name.split(':')[0]
-            # timestamp_major = int(timestamp.split('.')[0], 16)
-            # timestamp_minor = int(timestamp.split('.')[1], 16)
-            # timestamp = str(timestamp_major) + '.' + str(timestamp_minor)
+            if any(c in 'abcdefABCDEF' for c in timestamp):
+                timestamp_major = int(timestamp.split('.')[0], 16)
+                timestamp_minor = int(timestamp.split('.')[1], 16)
+                timestamp = str(timestamp_major) + '.' + str(timestamp_minor)
             player = field.name.split(':')[1].strip()
             line = ':'.join(field.value.split(':')[1:]).strip()
             if line:
@@ -180,10 +182,10 @@ def get_old_messages_from_embed(discord_embed):
 def add_embed_fields(old_messages, embed):
     """Add messages to the embed fields"""
     for message in old_messages:
-
         message.line = re.compile('\\b(tank)\\b', re.IGNORECASE).sub('<@&588127212943704065>', message.line)
         message.line = re.compile('\\b(heals|healer)\\b', re.IGNORECASE).sub('<@&588127189434892288>', message.line)
         message.line = re.compile('\\b(dps)\\b', re.IGNORECASE).sub('<@&588127168098336768>', message.line)
+        message.line = re.compile('\\b(all)\\b', re.IGNORECASE).sub('<@&588127212943704065><@&588127189434892288><@&588127168098336768>', message.line)
         duration = int((float(time.time()) - float(message.timestamp)) / 60)
         if duration <= 60:
             readable_duration = str(duration) + ' minutes ago'
@@ -191,7 +193,9 @@ def add_embed_fields(old_messages, embed):
                 readable_duration = 'just now'
             if duration == 1:
                 readable_duration = str(duration) + ' minute ago'
-            embed.add_field(name=(message.timestamp + ':  ' + message.player), value=(readable_duration + ': ' + message.line), inline=True)
+            timestamp_major = hex(int(message.timestamp.split('.')[0]))
+            timestamp_minor = hex(int(message.timestamp.split('.')[1]))
+            embed.add_field(name=(timestamp_major + '.' + timestamp_minor + ':  ' + message.player), value=(readable_duration + ': ' + message.line), inline=True)
 
 
 # DISCORD STUFF

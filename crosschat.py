@@ -166,6 +166,9 @@ def get_old_messages_from_embed(discord_embed):
     for field in discord_embed.fields:
         if field.name and field.value:
             timestamp = field.name.split(':')[0]
+            # timestamp_major = int(timestamp.split('.')[0], 16)
+            # timestamp_minor = int(timestamp.split('.')[1], 16)
+            # timestamp = str(timestamp_major) + '.' + str(timestamp_minor)
             player = field.name.split(':')[1].strip()
             line = ':'.join(field.value.split(':')[1:]).strip()
             if line:

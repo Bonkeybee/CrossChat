@@ -23,3 +23,7 @@ V
 &addons/LFGChatLogger/LFGChatLogger.toc,b\b\bb03b2a6acbe7423db3a97928838997455df0aec
 V
 &addons/LFGChatLogger/LFGChatLogger.lua,8\5\85ba0802ca43c2aefb5f8f1e71fd36128681d54e
+=
+crosschat.ahk,3\e\3ef1801da67894e575687c20d0a67fed4120ceaf
+S
+#addons/SampleData/LFGChatLogger.lua,1\e\1ea47a7128911d9726d79d744bae485bac5f542f

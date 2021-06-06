@@ -194,7 +194,7 @@ def add_embed_fields(old_messages, embed):
                 readable_duration = str(duration) + ' minute ago'
             timestamp_major = hex(int(message.timestamp.split('.')[0]))[2:]
             timestamp_minor = hex(int(message.timestamp.split('.')[1]))[2:]
-            message.line = message.line.rsplit('|', 1)
+            message.line = message.line.rsplit('|', 1)[0]
             embed.add_field(name=message.player, value=(readable_duration + ': ' + message.line + ' | ' + timestamp_major + '.' + timestamp_minor), inline=True)
 
 

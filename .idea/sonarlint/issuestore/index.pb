@@ -9,8 +9,6 @@ E
 lib/beans/__init__.py,1\b\1b4f4a0afd1c8e505e4eaa169edb9b8325e738bb
 7
 log.log,1\6\16c93d1167446f99a26837c0fdeac6fb73869794
-M
-lib/services/state_service.py,c\9\c9af7d5bacd22cb3bc370c6b12e100b3e9470571
 D
 config/config.sample,1\0\101c22404f0984bda8f204c69e181a0d4a2d3919
 W
@@ -25,5 +23,3 @@ V
 &addons/LFGChatLogger/LFGChatLogger.toc,b\b\bb03b2a6acbe7423db3a97928838997455df0aec
 V
 &addons/LFGChatLogger/LFGChatLogger.lua,8\5\85ba0802ca43c2aefb5f8f1e71fd36128681d54e
-S
-#addons/SampleData/LFGChatLogger.lua,1\e\1ea47a7128911d9726d79d744bae485bac5f542f

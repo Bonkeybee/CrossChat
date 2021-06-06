@@ -1,7 +1,6 @@
 """Handles the discord->game portion of crosschat"""
 import logging
 import re
-import string
 import time
 from collections import OrderedDict
 from os import system

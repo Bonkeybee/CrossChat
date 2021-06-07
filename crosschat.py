@@ -40,16 +40,20 @@ bot = commands.Bot(command_prefix='!')
 USER_CHANNEL_IDS = {int(settings.load()['discord']['guild_crosschat_channel_id']): 'guild', int(settings.load()['discord']['officer_crosschat_channel_id']): 'officer'}
 
 
+# noinspection PyBroadException
 async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, webhook_url_option, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns):
     """Reads the World of Warcraft addon chat logs and pushes new messages to the Discord webhook and/or embed"""
-    await bot.wait_until_ready()
-    while True:
-        messages = get_chat_log_messages(chat_log_file_option, starting_key, channel)
-        if embed_name and embed_channel_id_option and embed_message_id_option:
-            messages = await handle_embed(messages, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns)
-        if messages:
-            push_all(settings.load()['discord'][webhook_url_option], messages, channel)
-        await asyncio.sleep(6)
+    try:
+        await bot.wait_until_ready()
+        while True:
+            messages = get_chat_log_messages(chat_log_file_option, starting_key, channel)
+            if embed_name and embed_channel_id_option and embed_message_id_option:
+                messages = await handle_embed(messages, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns)
+            if messages:
+                push_all(settings.load()['discord'][webhook_url_option], messages, channel)
+            await asyncio.sleep(6)
+    except Exception as e:
+        LOG.exception('Unexpected exception: ' + repr(e))
 
 
 def get_chat_log_messages(chat_log_file_option, starting_key, channel):
@@ -249,12 +253,8 @@ async def on_message(message):
             await handle_user_message(message)
 
 
-# noinspection PyBroadException
-try:
-    guildchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url', None, None, None, None, None))
-    officerchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('officer_chat_log_file', 'OFFICERCHATLOG = {', 'officer', 'officer_chat_webhook_url', None, None, None, None, None))
-    systemchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('system_chat_log_file', 'SYSTEMCHATLOG = {', 'system', 'system_chat_webhook_url', None, None, None, None, None))
-    lfgchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('lfg_chat_log_file', 'LFGCHATLOG = {', 'lfg', 'lfg_chat_webhook_url', 'LookingForGroup', 'lfg_crosschat_channel_id', 'lfg_embed_message_id', [constants.LAZY_LFG_PATTERN, constants.BOOST_PATTERN, constants.GUILD_PATTERN], [constants.LFG_PATTERN]))
-    discordbot = asyncio.get_event_loop().create_task(bot.run(settings.load()['discord']['token']))
-except Exception as e:
-    LOG.exception('Unexpected exception')
+guildchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url', None, None, None, None, None))
+officerchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('officer_chat_log_file', 'OFFICERCHATLOG = {', 'officer', 'officer_chat_webhook_url', None, None, None, None, None))
+systemchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('system_chat_log_file', 'SYSTEMCHATLOG = {', 'system', 'system_chat_webhook_url', None, None, None, None, None))
+lfgchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('lfg_chat_log_file', 'LFGCHATLOG = {', 'lfg', 'lfg_chat_webhook_url', 'LookingForGroup', 'lfg_crosschat_channel_id', 'lfg_embed_message_id', [constants.LAZY_LFG_PATTERN, constants.BOOST_PATTERN, constants.GUILD_PATTERN], [constants.LFG_PATTERN]))
+discordbot = asyncio.get_event_loop().create_task(bot.run(settings.load()['discord']['token']))

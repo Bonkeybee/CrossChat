@@ -27,3 +27,13 @@ V
 crosschat.ahk,3\e\3ef1801da67894e575687c20d0a67fed4120ceaf
 S
 #addons/SampleData/LFGChatLogger.lua,1\e\1ea47a7128911d9726d79d744bae485bac5f542f
+F
+lib/utils/constants.py,0\c\0ce867d7cacbc2c3e3dd3dac420121ebd087290e
+D
+lib/beans/message.py,1\c\1c4eccba47f9f63c8037e80a4a16388871ab33a4
+;
+git_pull.py,3\1\312941c075f491d5465734329d161ddf8636142d
+=
+crosschat.bat,1\4\14da4ee6153bf21d4042fd66e1dcb042359bb040
+P
+ lib/services/chat_log_service.py,2\d\2d352abfb8b768fd5814c26fee3ecd27d4bfbd5a

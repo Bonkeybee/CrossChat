@@ -191,11 +191,9 @@ def add_embed_fields(old_messages, embed):
         message.line = re.compile('\\b(all)\\b', re.IGNORECASE).sub('<@&588127212943704065><@&588127189434892288><@&588127168098336768>', message.line)
         duration = int((float(time.time()) - float(message.timestamp)) / 60)
         if duration <= 60:
-            readable_duration = str(duration) + ' minutes ago'
+            readable_duration = str(duration) + 'm'
             if duration == 0:
-                readable_duration = 'just now'
-            if duration == 1:
-                readable_duration = str(duration) + ' minute ago'
+                readable_duration = ''
             timestamp_major = hex(int(message.timestamp.split('.')[0]))[2:]
             timestamp_minor = hex(int(message.timestamp.split('.')[1]))[2:]
             message.line = message.line.rsplit('|', 1)[0]

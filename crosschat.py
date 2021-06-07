@@ -53,6 +53,8 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                 push_all(settings.load()['discord'][webhook_url_option], messages, channel)
             await asyncio.sleep(6)
     except Exception as e:
+        for key in USER_CHANNEL_IDS:
+            await bot.get_channel(key).send('Unexpected exception: ' + repr(e))
         LOG.exception('Unexpected exception: ' + repr(e), e, exc_info=True)
 
 

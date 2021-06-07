@@ -36,7 +36,7 @@ def push_with_retries(url, timestamp, content, channel, attempts):
         return push_with_retries(url, timestamp, content, channel, attempts + 1)
     else:
         save_state(timestamp, channel)
-        LOG.info(content)
+        LOG.info(content.encode("UTF-8", "ignore").decode("UTF-8", "ignore"))
 
 
 def push_all(url, messages, channel):

@@ -27,8 +27,6 @@ V
 crosschat.ahk,3\e\3ef1801da67894e575687c20d0a67fed4120ceaf
 S
 #addons/SampleData/LFGChatLogger.lua,1\e\1ea47a7128911d9726d79d744bae485bac5f542f
-F
-lib/utils/constants.py,0\c\0ce867d7cacbc2c3e3dd3dac420121ebd087290e
 D
 lib/beans/message.py,1\c\1c4eccba47f9f63c8037e80a4a16388871ab33a4
 ;

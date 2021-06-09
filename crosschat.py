@@ -188,7 +188,7 @@ def add_embed_fields(old_messages, embed):
     """Add messages to the embed fields"""
     for message in old_messages:
         message.line = re.compile('\\b(tank|tanks)\\b', re.IGNORECASE).sub('<@&588127212943704065>', message.line)
-        message.line = re.compile('\\b(heals|healer)\\b', re.IGNORECASE).sub('<@&588127189434892288>', message.line)
+        message.line = re.compile('\\b(heal|heals|healer)\\b', re.IGNORECASE).sub('<@&588127189434892288>', message.line)
         message.line = re.compile('\\b(dps)\\b', re.IGNORECASE).sub('<@&588127168098336768>', message.line)
         message.line = re.compile('\\b(all)\\b', re.IGNORECASE).sub('<@&588127212943704065><@&588127189434892288><@&588127168098336768>', message.line)
         duration = int((float(time.time()) - float(message.timestamp)) / 60)
@@ -199,7 +199,14 @@ def add_embed_fields(old_messages, embed):
             timestamp_major = hex(int(message.timestamp.split('.')[0]))[2:]
             timestamp_minor = hex(int(message.timestamp.split('.')[1]))[2:]
             message.line = message.line.rsplit('|', 1)[0]
-            embed.add_field(name=message.player.strip(), value=((readable_duration + message.line).strip() + ' | ' + (timestamp_major + '.' + timestamp_minor).strip()), inline=True)
+
+            count = 0
+            for field in embed.fields:
+                count += len(field.name) + len(field.value)
+            if count < 5000:
+                embed.add_field(name=message.player.strip(), value=((readable_duration + message.line).strip() + ' | ' + (timestamp_major + '.' + timestamp_minor).strip()), inline=True)
+            else:
+                return
 
 
 # DISCORD STUFF

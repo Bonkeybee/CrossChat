@@ -4,6 +4,8 @@ addon_path = C:\Program Files (x86)\World of Warcraft\_classic_\Interface\AddOns
 guild_chat_log_file = addons\SampleData\GuildChatLogger.lua
 officer_chat_log_file = addons\SampleData\OfficerChatLogger.lua
 system_chat_log_file = addons\SampleData\SystemChatLogger.lua
+lfg_chat_log_file = addons\SampleData\LFGChatLogger.lua
+guild_info_file = addons\SampleData\GuildInfo.lua
 password = sample
 loop_amount = 300
 
@@ -12,11 +14,22 @@ token = sample
 guild_chat_webhook_url = https://discord.com/api/webhooks/sample
 officer_chat_webhook_url = https://discord.com/api/webhooks/sample
 system_chat_webhook_url = https://discord.com/api/webhooks/sample
-admin_id = sample
-guild_crosschat_channel_id = sample
-officer_crosschat_channel_id = sample
+lfg_chat_webhook_url = https://discord.com/api/webhooks/sample
+admin_id = 10002246412840960
+guild_crosschat_channel_id = 100067690702405662
+officer_crosschat_channel_id = 100050287132590110
+lfg_crosschat_channel_id = 100049267329073173
+skull_emoji = <:m1:100045160668430338>
+cross_emoji = <:m2:100045153991360512>
+square_emoji = <:m3:100045142809346097>
+moon_emoji = <:m4:100045133883736075>
+triangle_emoji = <:m5:100045123830120502>
+diamond_emoji = <:m6:100045114694664205>
+circle_emoji = <:m7:100045107346374666>
+star_emoji = <:m8:100045093027151872>
 
 [state]
 guild_timestamp = 0
 officer_timestamp = 0
 system_timestamp = 0
+lfg_timestamp = 0

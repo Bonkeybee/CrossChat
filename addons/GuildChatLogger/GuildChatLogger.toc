@@ -1,11 +1,11 @@
-## Interface: 11306
+## Interface: 20501
 ## Title: GuildChatLogger
 ## Notes: GuildChatLogger
 ## SavedVariables: GUILDCHATLOG
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## Author: Bonkeybee
-## Version: 11306
+## Version: 20501
 
 
 GuildChatLogger.lua

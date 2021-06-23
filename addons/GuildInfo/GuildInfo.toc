@@ -1,11 +1,11 @@
 ## Interface: 20501
-## Title: LFGChatLogger
-## Notes: LFGChatLogger
-## SavedVariables: LFGCHATLOG
+## Title: GuildInfo
+## Notes: GuildInfo
+## SavedVariables: GUILDINFO
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## Author: Bonkeybee
 ## Version: 20501
 
 
-LFGChatLogger.lua
+GuildInfo.lua

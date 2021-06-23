@@ -1,11 +1,11 @@
-## Interface: 11306
+## Interface: 20501
 ## Title: SystemChatLogger
 ## Notes: SystemChatLogger
 ## SavedVariables: SYSTEMCHATLOG
 ## LoadOnDemand: 0
 ## DefaultState: enabled
 ## Author: Bonkeybee
-## Version: 11306
+## Version: 20501
 
 
 SystemChatLogger.lua

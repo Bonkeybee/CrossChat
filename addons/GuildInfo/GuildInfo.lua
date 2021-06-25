@@ -27,13 +27,13 @@ local function onEvent(_, event, isLogin, isReload)
     local name, rank, _, level, _, zone, note, officernote, online, status, class = GetGuildRosterInfo(i)
     if (name) then
       local timestamp = GetTimestamp()
-      GUILDINFO[name] = {i, timestamp, name, rank, level, zone, note, officernote, online, status, class}
+      GUILDINFO[name] = {i, timestamp, rank, level, zone, note, officernote, online, status, class}
     end
   end
 
   -- Clean up older info
   for name,data in pairs(GUILDINFO) do
-    local timestamp = data[2]
+    local timestamp = data[2] or 0
     if (tonumber((timestamp) + INFO_KEEP_DURATION_S) < GetTimestamp()) then
       GUILDINFO[name] = nil
     end

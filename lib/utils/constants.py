@@ -51,6 +51,7 @@ RAID_REGEX_VANILLA = 'mc|molten|ony|onyxia|onyxia lair|zg|zul|gurub|bwl|blackwin
 DUNGEON_REGEX_TBC = 'hr|hfr|ramps*|ramparts*|bf|blood|furnace|citadel|sp|slave|pens*|slavepens*|ub|underbog|sv|steamvaults*|cfr|mt|mana|tombs*|ac|crypts*|seth|sethekk*|halls*|sl|shadow|labs*|slabs*|bm|black|morass|blackmorass|oh|dh|dk|ohf|durn|old|hillsbrad|foothills*|arc|arcatraz|bot|botanica|mech|mechanar|mgt|mrt|magisters*|terrace'
 DUNGEON_REGEX = group(DUNGEON_REGEX_VANILLA + OR + RAID_REGEX_VANILLA + OR + DUNGEON_REGEX_TBC)
 BOOST_REGEX = group('wtb|wts|boosts*|gdkp')
+RECRUIT_REGEX = group('recruit|recruiting')
 LOOKING_FOR = group(
     group(word(LOOKING_REGEX)) + EXIST + OR +
     group(word(ROLE_CLASS_REGEX)) + EXIST
@@ -72,6 +73,7 @@ GUILD_PATTERN = re.compile(ANYTHING +
                                group(LB + EMOJI_REGEX + ANY + LETTERS + EMOJI_REGEX + ANY + RB) + OR +
                                group(LC + EMOJI_REGEX + ANY + LETTERS + EMOJI_REGEX + ANY + RC)
                            ) + ANYTHING, re.IGNORECASE)
+RECRUITING_PATTERN = re.compile(ANYTHING + word(RECRUIT_REGEX) + ANYTHING, re.IGNORECASE)
 print('LFG_PATTERN:  ' + LFG_PATTERN.pattern)
 print('BOOST_PATTERN:  ' + BOOST_PATTERN.pattern)
 print('GUILD_PATTERN:  ' + GUILD_PATTERN.pattern)

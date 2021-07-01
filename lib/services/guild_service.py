@@ -30,7 +30,11 @@ def load_members(is_online: bool):
                 timestamp = data[i + 3].split(',')[0].strip()
                 rank = data[i + 4].split('"')[1]
                 level = data[i + 5].split(',')[0].strip()
-                zone = data[i + 6].split('"')[1]
+                zone = data[i + 6].split(', --')[0]
+                if zone == "nil":
+                    zone = "Unknown"
+                else:
+                    zone = zone.strip()[1:][:-1]
                 note = data[i + 7].split(', --')[0].strip()[1:][:-1]
                 officernote = data[i + 8].split(', --')[0].strip()[1:][:-1]
                 online = data[i + 9].split(',')[0].strip()

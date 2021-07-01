@@ -12,6 +12,8 @@ from better_profanity import profanity
 from discord import HTTPException
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
+from discord_slash.utils.manage_commands import create_option, create_permission
+from discord_slash.model import SlashCommandPermissionType, SlashCommandOptionType
 from tendo import singleton
 
 import settings
@@ -253,18 +255,43 @@ async def handle_user_message(message):
 
 
 @slash.slash(name="restart", description="restarts crosschat", guild_ids=[586283130772520960])
+@slash.permission(guild_id=586283130772520960, permissions=[create_permission(588045959989166090, SlashCommandPermissionType.ROLE, True)])
 async def _restart(context: SlashContext):
     if context.author_id == int(settings.load()['discord']['admin_id']):
         await handle_restart()
 
 
-@slash.slash(name="who", description="shows who is online in the guild", guild_ids=[586283130772520960])
-async def _who(context: SlashContext):
-    members = load_members(True)
-    message = str(members.__len__()) + ' members online:\n'
-    for member in load_members(True):
-        message += member.__simple__() + '\n'
-    await context.channel.send(message)
+@slash.slash(name="who", description="shows who is online in the guild", guild_ids=[586283130772520960],
+             options=[
+                 create_option(name="level", description="example: 70", option_type=SlashCommandOptionType.STRING, required=False),
+                 create_option(name="name", description="example: Bonkey", option_type=SlashCommandOptionType.STRING, required=False)
+             ])
+@slash.permission(guild_id=586283130772520960, permissions=[create_permission(588045026240626721, SlashCommandPermissionType.ROLE, True)])
+async def _who(context: SlashContext, level: str, name: str):
+    if level or name:
+        members = load_members(False)
+        if level:
+            if '+' in level:
+                level = ''.join(filter(str.isdigit, level))
+                members = filter(lambda m: m.level >= level, members)
+            elif '-' in level:
+                level = ''.join(filter(str.isdigit, level))
+                members = filter(lambda m: m.level <= level, members)
+            else:
+                level = ''.join(filter(str.isdigit, level))
+                members = filter(lambda m: m.level == level, members)
+        message = '** found ' + str(members.__len__()) + ' matches:**\n'
+        for member in members:
+            message += member.__str__() + '\n'
+        message = message[:1997] + (message[1997:] and '...')
+        await context.channel.send(message)
+    else:
+        members = load_members(True)
+        message = '**' + str(members.__len__()) + ' members online:**\n'
+        for member in members:
+            message += member.__simple__() + '\n'
+        message = message[:1997] + (message[1997:] and '...')
+        await context.channel.send(message)
 
 
 @bot.event

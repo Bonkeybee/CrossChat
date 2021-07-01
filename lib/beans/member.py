@@ -46,3 +46,6 @@ class Member:
             status = "(DND)"
         note = "[" + self.note + "|" + self.officernote + "]"
         return self.rank + " " + self.name + ", level " + self.level + " " + self.clazz.title() + ", " + online + status + " in " + self.zone + ", " + note
+
+    def __simple__(self) -> str:
+        return self.name + " " + self.level + " " + self.clazz.title()

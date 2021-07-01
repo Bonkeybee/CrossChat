@@ -252,19 +252,19 @@ async def handle_user_message(message):
             await message.channel.send(f'ERROR: {message.author.name}, your message was not sent.')
 
 
-@slash.slash(name="restart", description="restarts crosschat")
+@slash.slash(name="restart", description="restarts crosschat", guild_ids=[586283130772520960])
 async def _restart(context: SlashContext):
     if context.author_id == int(settings.load()['discord']['admin_id']):
         await handle_restart()
 
 
-@slash.slash(name="who", description="shows who is online in the guild")
+@slash.slash(name="who", description="shows who is online in the guild", guild_ids=[586283130772520960])
 async def _who(context: SlashContext):
     members = load_members(True)
-    message = members.__len__() + ' members online:\n'
+    message = str(members.__len__()) + ' members online:\n'
     for member in load_members(True):
-        message += member + '\n'
-    await context.channel.send(message.__str__())
+        message += member.__simple__() + '\n'
+    await context.channel.send(message)
 
 
 @bot.event

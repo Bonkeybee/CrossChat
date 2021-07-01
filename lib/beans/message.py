@@ -34,7 +34,7 @@ class Message:
     def __eq__(self, other) -> bool:
         return type(other) is Message and self.timestamp == other.timestamp and self.player == other.player and self.line == other.line
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(('timestamp', self.timestamp, 'player', self.player, 'line', self.line))
 
     def __str__(self) -> str:

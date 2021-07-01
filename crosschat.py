@@ -11,11 +11,13 @@ import pyautogui
 from better_profanity import profanity
 from discord import HTTPException
 from discord.ext import commands
+from discord_slash import SlashCommand, SlashContext
 from tendo import singleton
 
 import settings
 from lib.beans.message import Message
 from lib.services.chat_log_service import parse_chat_log, load_chat_log
+from lib.services.guild_service import load_members
 from lib.services.message_service import push_all, add_message
 from lib.utils import constants
 
@@ -35,7 +37,8 @@ LOG = logging.getLogger(__name__)
 LOG.info("Starting CROSSCHAT...")
 
 profanity.load_censor_words()
-bot = commands.Bot(command_prefix='!')
+bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
+slash = SlashCommand(bot, sync_commands=True)
 
 USER_CHANNEL_IDS = {int(settings.load()['discord']['guild_crosschat_channel_id']): 'guild', int(settings.load()['discord']['officer_crosschat_channel_id']): 'officer'}
 
@@ -249,15 +252,26 @@ async def handle_user_message(message):
             await message.channel.send(f'ERROR: {message.author.name}, your message was not sent.')
 
 
+@slash.slash(name="restart", description="restarts crosschat")
+async def _restart(context: SlashContext):
+    if context.author_id == int(settings.load()['discord']['admin_id']):
+        await handle_restart()
+
+
+@slash.slash(name="who", description="shows who is online in the guild")
+async def _who(context: SlashContext):
+    members = load_members(True)
+    message = members.__len__() + ' members online:\n'
+    for member in load_members(True):
+        message += member + '\n'
+    await context.channel.send(message.__str__())
+
+
 @bot.event
 async def on_message(message):
     """Discord message handling"""
-    if not message.author.bot:
-        if message.author.id == int(settings.load()['discord']['admin_id']) and constants.RESTART_PATTERN.match(message.content):
-            await handle_restart()
-            return
-        if message.channel.id in USER_CHANNEL_IDS.keys():
-            await handle_user_message(message)
+    if not message.author.bot and message.channel.id in USER_CHANNEL_IDS.keys():
+        await handle_user_message(message)
 
 
 guildchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url', None, None, None, None, None))

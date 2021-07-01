@@ -9,7 +9,7 @@ def parse_chat_log(index, chat_log):
     """Parses the World of Warcraft chat log file"""
     timestamp = chat_log[index].split('[')[1].split(']')[0]
     player = chat_log[index + 1].split('"')[1]
-    line = chat_log[index + 2].replace('\\"', '\'').split('"')[1]
+    line = chat_log[index + 2].split(', --')[0].strip()[1:][:-1]
     return timestamp, player, line
 
 

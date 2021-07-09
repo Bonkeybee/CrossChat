@@ -267,7 +267,7 @@ async def _restart(context: SlashContext):
                  create_option(name="name", description="example: Bonkey", option_type=SlashCommandOptionType.STRING, required=False)
              ])
 @slash.permission(guild_id=586283130772520960, permissions=[create_permission(588045026240626721, SlashCommandPermissionType.ROLE, True)])
-async def _who(context: SlashContext, level: str, name: str):
+async def _who(context: SlashContext, level: str = None, name: str = None):
     if level or name:
         members = load_members(False)
         if level:

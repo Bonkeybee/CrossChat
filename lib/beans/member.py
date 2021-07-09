@@ -4,7 +4,7 @@ LOG = logging.getLogger(__name__)
 
 
 class Member:
-    def __init__(self, index, timestamp, name, rank ,level, zone, note, officernote, online, status, clazz):
+    def __init__(self, index, timestamp, name, rank, level, zone, note, officernote, online, status, clazz):
         self.index = index
         self.timestamp = timestamp
         self.name = name.encode("UTF-8", "ignore").decode("UTF-8", "ignore")
@@ -40,12 +40,10 @@ class Member:
         if self.online:
             online = "Online"
         status = ""
-        if self.status == 1:
-            status = "(AFK)"
-        elif self.status == 2:
-            status = "(DND)"
+        if self.status != "Available":
+            status = "(" + self.status + ")"
         note = "[" + self.note + "|" + self.officernote + "]"
-        return self.rank + " " + self.name + ", level " + self.level + " " + self.clazz.title() + ", " + online + status + " in " + self.zone + ", " + note
+        return self.rank + " " + self.name + ", level " + self.level + " " + self.clazz + ", " + online + status + " in " + self.zone + ", " + note
 
     def __simple__(self) -> str:
-        return self.name + " " + self.level + " " + self.clazz.title()
+        return self.name + " " + self.level + " " + self.clazz

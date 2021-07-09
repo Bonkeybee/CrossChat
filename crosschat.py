@@ -272,7 +272,7 @@ async def _who(context: SlashContext, level: str = None, name: str = None):
         members = load_members(False)
         if level:
             if '+' in level:
-                level = ''.join(filter(str.isdigit, level))
+                level = int(''.join(filter(str.isdigit, level)))
                 members = list(filter(lambda m: m.level >= level, members))
             elif '-' in level:
                 level = ''.join(filter(str.isdigit, level))
@@ -280,6 +280,8 @@ async def _who(context: SlashContext, level: str = None, name: str = None):
             else:
                 level = ''.join(filter(str.isdigit, level))
                 members = list(filter(lambda m: m.level == level, members))
+        if name:
+            members = list(filter(lambda m: name in m.name, members))
         message = '** found ' + str(members.__len__()) + ' matches:**\n'
         for member in members:
             message += member.__str__() + '\n'
@@ -292,6 +294,7 @@ async def _who(context: SlashContext, level: str = None, name: str = None):
             message += member.__simple__() + '\n'
         message = message[:1997] + (message[1997:] and '...')
         await context.channel.send(message)
+    return True
 
 
 @bot.event

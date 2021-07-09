@@ -26,10 +26,10 @@ def load_members(is_online: bool):
                 data_start = i
             if data_start is not None and ((i - data_start) % 12) == 0:
                 name = data[i + 1].split('"')[1].split('-')[0]
-                index = data[i + 2].split(',')[0].strip()
-                timestamp = data[i + 3].split(',')[0].strip()
+                index = int(data[i + 2].split(',')[0].strip())
+                timestamp = float(data[i + 3].split(',')[0].strip())
                 rank = data[i + 4].split('"')[1]
-                level = data[i + 5].split(',')[0].strip()
+                level = int(data[i + 5].split(',')[0].strip())
                 zone = data[i + 6].split(', --')[0]
                 if zone == "nil":
                     zone = "Unknown"
@@ -37,9 +37,15 @@ def load_members(is_online: bool):
                     zone = zone.strip()[1:][:-1]
                 note = data[i + 7].split(', --')[0].strip()[1:][:-1]
                 officernote = data[i + 8].split(', --')[0].strip()[1:][:-1]
-                online = data[i + 9].split(',')[0].strip()
-                status = data[i + 10].split(',')[0].strip()
-                clazz = data[i + 11].split('"')[1]
+                online = bool(data[i + 9].split(',')[0].strip())
+                status = int(data[i + 10].split(',')[0].strip())
+                if status == 1:
+                    status = "Away"
+                elif status == 2:
+                    status = "Busy"
+                else:
+                    status = "Available"
+                clazz = data[i + 11].split('"')[1].title()
                 member = Member(index, timestamp, name, rank, level, zone, note, officernote, online, status, clazz)
 
                 if is_online is not None and is_online != member.online:

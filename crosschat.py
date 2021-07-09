@@ -282,18 +282,18 @@ async def _who(context: SlashContext, level: str = None, name: str = None):
                 members = list(filter(lambda m: m.level == level, members))
         if name:
             members = list(filter(lambda m: name in m.name, members))
-        message = '** found ' + str(members.__len__()) + ' matches:**\n'
+        message = '**Found ' + str(members.__len__()) + ' matches:**\n'
         for member in members:
             message += member.__str__() + '\n'
         message = message[:1997] + (message[1997:] and '...')
-        await context.channel.send(message)
+        await context.send(message)
     else:
-        members = load_members(True)
+        members = load_members()
         message = '**' + str(members.__len__()) + ' members online:**\n'
         for member in members:
             message += member.__simple__() + '\n'
         message = message[:1997] + (message[1997:] and '...')
-        await context.channel.send(message)
+        await context.send(message)
     return True
 
 

@@ -273,13 +273,13 @@ async def _who(context: SlashContext, level: str = None, name: str = None):
         if level:
             if '+' in level:
                 level = ''.join(filter(str.isdigit, level))
-                members = filter(lambda m: m.level >= level, members)
+                members = list(filter(lambda m: m.level >= level, members))
             elif '-' in level:
                 level = ''.join(filter(str.isdigit, level))
-                members = filter(lambda m: m.level <= level, members)
+                members = list(filter(lambda m: m.level <= level, members))
             else:
                 level = ''.join(filter(str.isdigit, level))
-                members = filter(lambda m: m.level == level, members)
+                members = list(filter(lambda m: m.level == level, members))
         message = '** found ' + str(members.__len__()) + ' matches:**\n'
         for member in members:
             message += member.__str__() + '\n'

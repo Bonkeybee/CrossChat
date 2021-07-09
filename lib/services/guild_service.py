@@ -8,7 +8,7 @@ from lib.beans.member import Member
 LOG = logging.getLogger(__name__)
 
 
-def load_members(is_online: bool):
+def load_members(is_online: bool = True):
     data = None
     while data is None:
         try:

@@ -13,7 +13,7 @@ class Member:
         self.zone = zone.encode("UTF-8", "ignore").decode("UTF-8", "ignore")
         self.note = note.encode("UTF-8", "ignore").decode("UTF-8", "ignore")
         self.officernote = officernote.encode("UTF-8", "ignore").decode("UTF-8", "ignore")
-        self.online = online == 'true'
+        self.online = online
         self.status = status
         self.clazz = clazz
 

@@ -268,6 +268,7 @@ async def _restart(context: SlashContext):
              ])
 @slash.permission(guild_id=586283130772520960, permissions=[create_permission(588045026240626721, SlashCommandPermissionType.ROLE, True)])
 async def _who(context: SlashContext, level: str = None, name: str = None):
+    message = context.author.display_name + " used /who" + " level: " + level + " name: " + name + "\n"
     if level or name:
         members = load_members(False)
         if level:
@@ -282,14 +283,15 @@ async def _who(context: SlashContext, level: str = None, name: str = None):
                 members = list(filter(lambda m: m.level == level, members))
         if name:
             members = list(filter(lambda m: name in m.name, members))
-        message = '**Found ' + str(members.__len__()) + ' matches:**\n'
+
+        message = message + '**Found ' + str(members.__len__()) + ' matches:**\n'
         for member in members:
             message += member.__str__() + '\n'
         message = message[:1997] + (message[1997:] and '...')
         await context.send(message)
     else:
         members = load_members()
-        message = '**' + str(members.__len__()) + ' members online:**\n'
+        message = message + '**' + str(members.__len__()) + ' members online:**\n'
         for member in members:
             message += member.__simple__() + '\n'
         message = message[:1997] + (message[1997:] and '...')

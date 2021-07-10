@@ -43,7 +43,7 @@ class Member:
         if self.status != "Available":
             status = "(" + self.status + ")"
         note = "[" + self.note + "|" + self.officernote + "]"
-        return self.rank + " " + self.name + ", level " + self.level + " " + self.clazz + ", " + online + status + " in " + self.zone + ", " + note
+        return self.rank + " " + self.name + ", level " + str(self.level) + " " + self.clazz + ", " + online + status + " in " + self.zone + ", " + note
 
     def __simple__(self) -> str:
-        return self.name + " " + self.level + " " + self.clazz
+        return self.name + " " + str(self.level) + " " + self.clazz

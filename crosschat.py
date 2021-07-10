@@ -286,14 +286,14 @@ async def _who(context: SlashContext, level: str = None, name: str = None):
         for member in members:
             message += member.__str__() + '\n'
         message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
-        await context.send(message)
+        await context.send(message, delete_after=60)
     else:
         members = load_members()
         message = '**' + str(members.__len__()) + ' members online:**\n'
         for member in members:
             message += member.__simple__() + '\n'
         message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
-        await context.send(message)
+        await context.send(message, delete_after=60)
     return True
 
 

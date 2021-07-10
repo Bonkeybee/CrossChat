@@ -37,7 +37,11 @@ def load_members(is_online: bool = True):
                     zone = zone.strip()[1:][:-1]
                 note = data[i + 7].split(', --')[0].strip()[1:][:-1]
                 officernote = data[i + 8].split(', --')[0].strip()[1:][:-1]
-                online = bool(data[i + 9].split(',')[0].strip())
+                online = data[i + 9].split(',')[0].strip()
+                if online == "true":
+                    online = True
+                else:
+                    online = False
                 status = int(data[i + 10].split(',')[0].strip())
                 if status == 1:
                     status = "Away"

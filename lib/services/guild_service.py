@@ -48,7 +48,7 @@ def load_members(is_online: bool = True):
                 clazz = data[i + 11].split('"')[1].title()
                 member = Member(index, timestamp, name, rank, level, zone, note, officernote, online, status, clazz)
 
-                if is_online is not None and is_online != member.online:
+                if is_online and is_online != member.online:
                     continue
 
                 members.append(member)

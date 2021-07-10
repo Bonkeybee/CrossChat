@@ -3,6 +3,7 @@ import logging
 import re
 import time
 from collections import OrderedDict
+from http import HTTPStatus
 from os import system
 
 import asyncio
@@ -44,7 +45,6 @@ slash = SlashCommand(bot, sync_commands=True)
 
 USER_CHANNEL_IDS = {int(settings.load()['discord']['guild_crosschat_channel_id']): 'guild', int(settings.load()['discord']['officer_crosschat_channel_id']): 'officer'}
 
-
 # noinspection PyBroadException
 async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, webhook_url_option, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns):
     """Reads the World of Warcraft addon chat logs and pushes new messages to the Discord webhook and/or embed"""
@@ -56,7 +56,7 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                 messages = await handle_embed(messages, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns)
             if messages:
                 push_all(settings.load()['discord'][webhook_url_option], messages, channel)
-            await asyncio.sleep(6)
+            await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
         LOG.exception('Unexpected exception: ' + repr(e), e, exc_info=True)
         for key in USER_CHANNEL_IDS:
@@ -166,7 +166,7 @@ async def get_message_with_retry(channel_id, message_id, attempts):
     try:
         return await bot.get_channel(channel_id).fetch_message(message_id)
     except HTTPException as exception:
-        if exception.code == 504 and attempts <= 5:
+        if exception.code == HTTPStatus.GATEWAY_TIMEOUT and attempts <= constants.DISCORD_RETRY_LIMIT:
             await asyncio.sleep(pow(attempts + 1, 2))
             return await get_message_with_retry(channel_id, message_id, attempts + 1)
 
@@ -192,10 +192,10 @@ def get_old_messages_from_embed(discord_embed):
 def add_embed_fields(old_messages, embed):
     """Add messages to the embed fields"""
     for message in old_messages:
-        message.line = re.compile('\\b(tank|tanks)\\b', re.IGNORECASE).sub('<@&588127212943704065>', message.line)
-        message.line = re.compile('\\b(heal|heals|healer)\\b', re.IGNORECASE).sub('<@&588127189434892288>', message.line)
-        message.line = re.compile('\\b(dps)\\b', re.IGNORECASE).sub('<@&588127168098336768>', message.line)
-        message.line = re.compile('\\b(all)\\b', re.IGNORECASE).sub('<@&588127212943704065><@&588127189434892288><@&588127168098336768>', message.line)
+        message.line = re.compile('\\b(tank|tanks)\\b', re.IGNORECASE).sub('<@&'+settings.load()['discord']['tank_role']+'>', message.line)
+        message.line = re.compile('\\b(heal|heals|healer)\\b', re.IGNORECASE).sub('<@&'+settings.load()['discord']['heal_role']+'>', message.line)
+        message.line = re.compile('\\b(dps)\\b', re.IGNORECASE).sub('<@&'+settings.load()['discord']['dps_role']+'>', message.line)
+        message.line = re.compile('\\b(all)\\b', re.IGNORECASE).sub('<@&'+settings.load()['discord']['tank_role']+'><@&'+settings.load()['discord']['heal_role']+'><@&'+settings.load()['discord']['dps_role']+'>', message.line)
         duration = int((float(time.time()) - float(message.timestamp)) / 60)
         if duration <= 60:
             readable_duration = str(duration) + 'm: '
@@ -208,7 +208,7 @@ def add_embed_fields(old_messages, embed):
             count = 0
             for field in embed.fields:
                 count += len(field.name) + len(field.value)
-            if count < 5000:
+            if count < constants.DISCORD_EMBED_LIMIT:
                 embed.add_field(name=message.player.strip(), value=((readable_duration + message.line).strip() + ' | ' + (timestamp_major + '.' + timestamp_minor).strip()), inline=True)
             else:
                 return
@@ -254,21 +254,19 @@ async def handle_user_message(message):
             await message.channel.send(f'ERROR: {message.author.name}, your message was not sent.')
 
 
-@slash.slash(name="restart", description="restarts crosschat", guild_ids=[586283130772520960])
-@slash.permission(guild_id=586283130772520960, permissions=[create_permission(588045959989166090, SlashCommandPermissionType.ROLE, True)])
+@slash.slash(name="restart", description="restarts crosschat", guild_ids=[int(settings.load()['discord']['guild_id'])])
+@slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['admin_role']), SlashCommandPermissionType.ROLE, True)])
 async def _restart(context: SlashContext):
-    if context.author_id == int(settings.load()['discord']['admin_id']):
-        await handle_restart()
+    await handle_restart()
 
 
-@slash.slash(name="who", description="shows who is online in the guild", guild_ids=[586283130772520960],
+@slash.slash(name="who", description="shows who is online in the guild", guild_ids=[int(settings.load()['discord']['guild_id'])],
              options=[
-                 create_option(name="level", description="example: 70", option_type=SlashCommandOptionType.STRING, required=False),
-                 create_option(name="name", description="example: Bonkey", option_type=SlashCommandOptionType.STRING, required=False)
+                 create_option(name="level", description="example: 60", option_type=SlashCommandOptionType.STRING, required=False),
+                 create_option(name="name", description="example: Bonkeybee", option_type=SlashCommandOptionType.STRING, required=False)
              ])
-@slash.permission(guild_id=586283130772520960, permissions=[create_permission(588045026240626721, SlashCommandPermissionType.ROLE, True)])
+@slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['member_role']), SlashCommandPermissionType.ROLE, True)])
 async def _who(context: SlashContext, level: str = None, name: str = None):
-    message = context.author.display_name + " used /who" + " level: " + level + " name: " + name + "\n"
     if level or name:
         members = load_members(False)
         if level:
@@ -276,25 +274,25 @@ async def _who(context: SlashContext, level: str = None, name: str = None):
                 level = int(''.join(filter(str.isdigit, level)))
                 members = list(filter(lambda m: m.level >= level, members))
             elif '-' in level:
-                level = ''.join(filter(str.isdigit, level))
+                level = int(''.join(filter(str.isdigit, level)))
                 members = list(filter(lambda m: m.level <= level, members))
             else:
-                level = ''.join(filter(str.isdigit, level))
+                level = int(''.join(filter(str.isdigit, level)))
                 members = list(filter(lambda m: m.level == level, members))
         if name:
-            members = list(filter(lambda m: name in m.name, members))
+            members = list(filter(lambda m: str.lower(name) in str.lower(m.name), members))
 
-        message = message + '**Found ' + str(members.__len__()) + ' matches:**\n'
+        message = '**Found ' + str(members.__len__()) + ' matches:**\n'
         for member in members:
             message += member.__str__() + '\n'
-        message = message[:1997] + (message[1997:] and '...')
+        message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
         await context.send(message)
     else:
         members = load_members()
-        message = message + '**' + str(members.__len__()) + ' members online:**\n'
+        message = '**' + str(members.__len__()) + ' members online:**\n'
         for member in members:
             message += member.__simple__() + '\n'
-        message = message[:1997] + (message[1997:] and '...')
+        message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
         await context.send(message)
     return True
 

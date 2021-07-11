@@ -265,6 +265,7 @@ async def _restart(context: SlashContext):
 async def _report(context: SlashContext):
     message = '**Audit Report:** \n'
     game_members = load_members(False)
+    non_member_count = 0
     for discord_member in context.guild.members:
         for role in discord_member.roles:
             if role.name == 'Members':
@@ -273,9 +274,12 @@ async def _report(context: SlashContext):
                     if game_member.officernote == discord_member.__str__():
                         is_member = True
                 if not is_member:
+                    non_member_count += 1
                     message = message + discord_member.__str__() + ' is not a guild member\n'
     message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
     await context.send(message, delete_after=60)
+    if non_member_count > 0:
+        await context.send("Found " + str(non_member_count) + " results")
 
 
 @slash.slash(name="who", description="shows who is online in the guild", guild_ids=[int(settings.load()['discord']['guild_id'])],

@@ -10,7 +10,7 @@ import asyncio
 import discord
 import pyautogui
 from better_profanity import profanity
-from discord import HTTPException
+from discord import HTTPException, Member, Role
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_permission
@@ -258,6 +258,24 @@ async def handle_user_message(message):
 @slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['admin_role']), SlashCommandPermissionType.ROLE, True)])
 async def _restart(context: SlashContext):
     await handle_restart()
+
+
+@slash.slash(name="report", description="run a member audit and show the report", guild_ids=[int(settings.load()['discord']['guild_id'])])
+@slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['admin_role']), SlashCommandPermissionType.ROLE, True)])
+async def _report(context: SlashContext):
+    message = '**Audit Report:** \n'
+    game_members = load_members(False)
+    for discord_member in context.guild.members:
+        for role in discord_member.roles:
+            if role.name == 'Members':
+                is_member = False
+                for game_member in game_members:
+                    if game_member.officernote == discord_member.__str__():
+                        is_member = True
+                if not is_member:
+                    message = message + discord_member.__str__() + ' is not a guild member\n'
+    message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
+    await context.send(message, delete_after=60)
 
 
 @slash.slash(name="who", description="shows who is online in the guild", guild_ids=[int(settings.load()['discord']['guild_id'])],

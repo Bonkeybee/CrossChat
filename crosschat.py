@@ -279,7 +279,7 @@ async def _report(context: SlashContext, autocorrect: bool = False):
                     if game_member.officernote == discord_member.__str__():
                         is_member = True
                 if not is_member:
-                    message = message + '(<@' + discord_member.id + '>) is not a guild member (set note or kick)\n'
+                    message = message + '(<@' + str(discord_member.id) + '>) is not a guild member (set note or kick)\n'
     if len(message) > 0:
         message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
         await context.send(message, delete_after=60)
@@ -292,9 +292,9 @@ async def _report(context: SlashContext, autocorrect: bool = False):
                     if role.id == member_role:
                         is_member = True
                         if str.lower(game_member.name) not in str.lower(discord_member.display_name):
-                            message = message + game_member.name + '(<@' + discord_member.id + '>) character and discord name (' + discord_member.display_name + ') does not match (change nickname or move note)\n'
+                            message = message + game_member.name + '(<@' + str(discord_member.id) + '>) character and discord name (' + discord_member.display_name + ') does not match (change nickname or move note)\n'
                 if not is_member:
-                    message = message + game_member.name + '(<@' + discord_member.id + '>) does not have member permissions (grant or remove note)\n'
+                    message = message + game_member.name + '(<@' + str(discord_member.id) + '>) does not have member permissions (grant or remove note)\n'
                     if autocorrect:
                         await discord_member.add_roles(context.guild.get_role(int(settings.load()['discord']['member_role'])))
     if len(message) > 0:

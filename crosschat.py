@@ -260,12 +260,16 @@ async def _restart(context: SlashContext):
     await handle_restart()
 
 
-@slash.slash(name="report", description="run a member audit and show the report", guild_ids=[int(settings.load()['discord']['guild_id'])])
+@slash.slash(name="report", description="run a member audit and show the report", guild_ids=[int(settings.load()['discord']['guild_id'])],
+             options=[
+                 create_option(name="autocorrect", description="automatically fix problems", option_type=SlashCommandOptionType.BOOLEAN, required=False)
+             ])
 @slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['admin_role']), SlashCommandPermissionType.ROLE, True)])
-async def _report(context: SlashContext):
+async def _report(context: SlashContext, autocorrect: bool = False):
     message = '**Audit Report:** \n'
+    await context.send(message, delete_after=60)
+    message = ''
     game_members = load_members(False)
-    non_member_count = 0
     for discord_member in context.guild.members:
         for role in discord_member.roles:
             if role.name == 'Members':
@@ -274,12 +278,22 @@ async def _report(context: SlashContext):
                     if game_member.officernote == discord_member.__str__():
                         is_member = True
                 if not is_member:
-                    non_member_count += 1
-                    message = message + discord_member.__str__() + ' is not a guild member\n'
-    message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
-    await context.send(message, delete_after=60)
-    if non_member_count > 0:
-        await context.send("Found " + str(non_member_count) + " results")
+                    message = message + discord_member.__str__() + ' is not a guild member (set note or kick)\n'
+    if len(message) > 0:
+        message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
+        await context.send(message, delete_after=60)
+    message = ''
+    for game_member in game_members:
+        for discord_member in context.guild.members:
+            if game_member.officernote == discord_member.__str__():
+                message = message + game_member.name + '(' + discord_member.__str__() + ') does not have member permissions (grant or remove note)\n'
+                if autocorrect:
+                    await discord_member.add_roles(context.guild.get_role(int(settings.load()['discord']['member_role'])))
+    if len(message) > 0:
+        message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
+        await context.send(message, delete_after=60)
+
+
 
 
 @slash.slash(name="who", description="shows who is online in the guild", guild_ids=[int(settings.load()['discord']['guild_id'])],

@@ -292,7 +292,7 @@ async def _report(context: SlashContext, autocorrect: bool = False):
                     if role.id == member_role:
                         is_member = True
                         if game_member.name not in discord_member.display_name:
-                            message = message + game_member.name + '(' + discord_member.__str__() + ') character and discord name does not match (change nickname)\n'
+                            message = message + game_member.name + '(' + discord_member.__str__() + ') character and discord name (' + discord_member.display_name + ') does not match (change nickname)\n'
                 if not is_member:
                     message = message + game_member.name + '(' + discord_member.__str__() + ') does not have member permissions (grant or remove note)\n'
                     if autocorrect:

@@ -266,13 +266,14 @@ async def _restart(context: SlashContext):
              ])
 @slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['admin_role']), SlashCommandPermissionType.ROLE, True)])
 async def _report(context: SlashContext, autocorrect: bool = False):
+    member_role = int(settings.load()['discord']['member_role'])
     message = '**Audit Report:** \n'
     await context.send(message, delete_after=60)
     message = ''
     game_members = load_members(False)
     for discord_member in context.guild.members:
         for role in discord_member.roles:
-            if role.name == 'Members':
+            if role.id == member_role:
                 is_member = False
                 for game_member in game_members:
                     if game_member.officernote == discord_member.__str__():
@@ -286,9 +287,14 @@ async def _report(context: SlashContext, autocorrect: bool = False):
     for game_member in game_members:
         for discord_member in context.guild.members:
             if game_member.officernote == discord_member.__str__():
-                message = message + game_member.name + '(' + discord_member.__str__() + ') does not have member permissions (grant or remove note)\n'
-                if autocorrect:
-                    await discord_member.add_roles(context.guild.get_role(int(settings.load()['discord']['member_role'])))
+                is_member = False
+                for role in discord_member.roles:
+                    if role.id == member_role:
+                        is_member = True
+                if not is_member:
+                    message = message + game_member.name + '(' + discord_member.__str__() + ') does not have member permissions (grant or remove note)\n'
+                    if autocorrect:
+                        await discord_member.add_roles(context.guild.get_role(int(settings.load()['discord']['member_role'])))
     if len(message) > 0:
         message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
         await context.send(message, delete_after=60)

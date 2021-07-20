@@ -224,8 +224,6 @@ async def on_ready():
 
 async def handle_restart():
     """Send a key-combination on the host to trigger the Auto-Hotkey script reload"""
-    for key in USER_CHANNEL_IDS:
-        await bot.get_channel(key).send('Restarting CROSSCHAT, standby...')
     pyautogui.keyDown('ctrl')
     pyautogui.press('r')
     await asyncio.sleep(1)
@@ -257,7 +255,8 @@ async def handle_user_message(message):
 
 @slash.slash(name="restart", description="restarts crosschat", guild_ids=[int(settings.load()['discord']['guild_id'])])
 @slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['admin_role']), SlashCommandPermissionType.ROLE, True)])
-async def _restart():
+async def restart(context: SlashContext):
+    await context.send("Restarting CROSSCHAT, standby...")
     await handle_restart()
 
 
@@ -292,7 +291,7 @@ def is_member_discord_member(game_member, discord_member):
         return True
 
 
-def check_members_for_name_match_and_permissions(context, autocorrect):
+async def check_members_for_name_match_and_permissions(context, autocorrect):
     message = ''
     game_members = get_guild_members(False)
     for game_member in game_members:
@@ -311,7 +310,7 @@ def check_members_for_name_match_and_permissions(context, autocorrect):
     send_temp_message(context, message)
 
 
-def send_temp_message(context, message):
+async def send_temp_message(context, message):
     if len(message) > 0:
         message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
         await context.send(message, delete_after=60)

@@ -1,4 +1,4 @@
-"""Handles the discord->game portion of crosschat"""
+"""Handles the discord<->game portion of crosschat"""
 import logging
 import re
 import time
@@ -10,7 +10,7 @@ import asyncio
 import discord
 import pyautogui
 from better_profanity import profanity
-from discord import HTTPException, Member, Role
+from discord import HTTPException
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
 from discord_slash.utils.manage_commands import create_option, create_permission
@@ -20,7 +20,7 @@ from tendo import singleton
 import settings
 from lib.beans.message import Message
 from lib.services.chat_log_service import parse_chat_log, load_chat_log
-from lib.services.guild_service import load_members
+from lib.services.guild_service import get_guild_members
 from lib.services.message_service import push_all, add_message
 from lib.utils import constants
 
@@ -44,6 +44,7 @@ bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 slash = SlashCommand(bot, sync_commands=True)
 
 USER_CHANNEL_IDS = {int(settings.load()['discord']['guild_crosschat_channel_id']): 'guild', int(settings.load()['discord']['officer_crosschat_channel_id']): 'officer'}
+
 
 # noinspection PyBroadException
 async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, webhook_url_option, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns):
@@ -256,40 +257,50 @@ async def handle_user_message(message):
 
 @slash.slash(name="restart", description="restarts crosschat", guild_ids=[int(settings.load()['discord']['guild_id'])])
 @slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['admin_role']), SlashCommandPermissionType.ROLE, True)])
-async def _restart(context: SlashContext):
+async def _restart():
     await handle_restart()
 
 
-@slash.slash(name="report", description="run a member audit and show the report", guild_ids=[int(settings.load()['discord']['guild_id'])],
+@slash.slash(name="audit", description="run a member audit and show the report", guild_ids=[int(settings.load()['discord']['guild_id'])],
              options=[
                  create_option(name="autocorrect", description="automatically fix problems", option_type=SlashCommandOptionType.BOOLEAN, required=False)
              ])
 @slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['admin_role']), SlashCommandPermissionType.ROLE, True)])
-async def _report(context: SlashContext, autocorrect: bool = False):
-    member_role = int(settings.load()['discord']['member_role'])
+async def audit(context: SlashContext, autocorrect: bool = False):
     message = '**Audit Report:** \n'
     await context.send(message, delete_after=60)
+    check_discord_members_for_name_in_note(context)
+    check_members_for_name_match_and_permissions(context, autocorrect)
+
+
+def check_discord_members_for_name_in_note(context):
     message = ''
-    game_members = load_members(False)
+    game_members = get_guild_members(False)
     for discord_member in context.guild.members:
         for role in discord_member.roles:
-            if role.id == member_role:
+            if role.id == int(settings.load()['discord']['member_role']):
                 is_member = False
                 for game_member in game_members:
-                    if game_member.officernote == discord_member.__str__():
-                        is_member = True
+                    is_member = is_member_discord_member(game_member, discord_member)
                 if not is_member:
                     message = message + '(<@' + str(discord_member.id) + '>) is not a guild member (set note or kick)\n'
-    if len(message) > 0:
-        message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
-        await context.send(message, delete_after=60)
+    send_temp_message(context, message)
+
+
+def is_member_discord_member(game_member, discord_member):
+    if game_member.officernote == discord_member.__str__():
+        return True
+
+
+def check_members_for_name_match_and_permissions(context, autocorrect):
     message = ''
+    game_members = get_guild_members(False)
     for game_member in game_members:
         for discord_member in context.guild.members:
             if game_member.officernote == discord_member.__str__():
                 is_member = False
                 for role in discord_member.roles:
-                    if role.id == member_role:
+                    if role.id == int(settings.load()['discord']['member_role']):
                         is_member = True
                         if str.lower(game_member.name) not in str.lower(discord_member.display_name):
                             message = message + game_member.name + '(<@' + str(discord_member.id) + '>) character and discord name (' + discord_member.display_name + ') does not match (change nickname or move note)\n'
@@ -297,11 +308,13 @@ async def _report(context: SlashContext, autocorrect: bool = False):
                     message = message + game_member.name + '(<@' + str(discord_member.id) + '>) does not have member permissions (grant or remove note)\n'
                     if autocorrect:
                         await discord_member.add_roles(context.guild.get_role(int(settings.load()['discord']['member_role'])))
+    send_temp_message(context, message)
+
+
+def send_temp_message(context, message):
     if len(message) > 0:
         message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
         await context.send(message, delete_after=60)
-
-
 
 
 @slash.slash(name="who", description="shows who is online in the guild", guild_ids=[int(settings.load()['discord']['guild_id'])],
@@ -310,35 +323,39 @@ async def _report(context: SlashContext, autocorrect: bool = False):
                  create_option(name="name", description="example: Bonkeybee", option_type=SlashCommandOptionType.STRING, required=False)
              ])
 @slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['member_role']), SlashCommandPermissionType.ROLE, True)])
-async def _who(context: SlashContext, level: str = None, name: str = None):
+async def who(context: SlashContext, level: str = None, name: str = None):
     if level or name:
-        members = load_members(False)
-        if level:
-            if '+' in level:
-                level = int(''.join(filter(str.isdigit, level)))
-                members = list(filter(lambda m: m.level >= level, members))
-            elif '-' in level:
-                level = int(''.join(filter(str.isdigit, level)))
-                members = list(filter(lambda m: m.level <= level, members))
-            else:
-                level = int(''.join(filter(str.isdigit, level)))
-                members = list(filter(lambda m: m.level == level, members))
-        if name:
-            members = list(filter(lambda m: str.lower(name) in str.lower(m.name), members))
-
+        members = filter_members_by_name(name, filter_members_by_level(level, get_guild_members(False)))
         message = '**Found ' + str(members.__len__()) + ' matches:**\n'
         for member in members:
             message += member.__str__() + '\n'
-        message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
-        await context.send(message, delete_after=60)
+        send_temp_message(context, message)
     else:
-        members = load_members()
+        members = get_guild_members()
         message = '**' + str(members.__len__()) + ' members online:**\n'
         for member in members:
             message += member.__simple__() + '\n'
         message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
         await context.send(message, delete_after=60)
-    return True
+
+
+def filter_members_by_level(level, members):
+    if level:
+        if '+' in level:
+            level = int(''.join(filter(str.isdigit, level)))
+            members = list(filter(lambda m: m.level >= level, members))
+        elif '-' in level:
+            level = int(''.join(filter(str.isdigit, level)))
+            members = list(filter(lambda m: m.level <= level, members))
+        else:
+            level = int(''.join(filter(str.isdigit, level)))
+            members = list(filter(lambda m: m.level == level, members))
+    return members
+
+def filter_members_by_name(name, members):
+    if name:
+        members = list(filter(lambda m: str.lower(name) in str.lower(m.name), members))
+    return members
 
 
 @bot.event

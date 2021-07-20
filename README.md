@@ -9,6 +9,8 @@
 #Configuration:
 Rename `config.sample` to `config.ini` and make any necessary changes.
 
+###wow
+
 `game_path` your absolute path to the World of Warcraft executable
 
 `addon_path` your absolute path to the World of Warcraft interface addons folder
@@ -25,6 +27,8 @@ Rename `config.sample` to `config.ini` and make any necessary changes.
 
 `loop_amount` the loop count before restarting the script
 
+###discord
+
 `token` your Discord bot token
 
 `guild_chat_webhook_url` your Discord integration webhook URL for guild chat
@@ -35,7 +39,19 @@ Rename `config.sample` to `config.ini` and make any necessary changes.
 
 `lfg_chat_webhook_url` your Discord integration webhook URL for lfg chat
 
+`guild_id` your Discord guild ID
+
 `admin_id` your Discord account ID
+
+`admin_role` your Discord admin/moderator role ID
+
+`member_role` your Discord member role ID
+
+`tank_role` your Discord tank role ID
+
+`heal_role` your Discord heal role ID
+
+`dps_role` your Discord dps role ID
 
 `guild_crosschat_channel_id` your designated Discord guild CROSSCHAT channel id
 
@@ -59,6 +75,8 @@ Rename `config.sample` to `config.ini` and make any necessary changes.
 
 `star_emoji` your Discord emoji replacement for World of Warcraft's skull icon
 
+###state
+
 `guild_timestamp` the initial World of Warcraft timestamp to start reading guild chat from
 
 `officer_timestamp` the initial World of Warcraft timestamp to start reading officer chat from
@@ -72,6 +90,6 @@ Launch AHK script and press `CTRL+R` followed by `CTRL+Q`
 
 `CTRL+R` will reload the AHK script and pull from this repo to update.
 
-`CTRL+Q` will start World of Warcraft and the CROSSCHAT services .
+`CTRL+Q` will start World of Warcraft and the CROSSCHAT services.
 
-`CTRL+E` will restart the in-game reloading process without 
+`CTRL+E` will restart the in-game reloading process without restarting World of Warcraft.

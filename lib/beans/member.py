@@ -1,9 +1,11 @@
+"""Defines the Member class and its components and formatting"""
 import logging
 
 LOG = logging.getLogger(__name__)
 
 
 class Member:
+    """Member class to hold properties parsed from World of Warcraft Guild Info"""
     def __init__(self, index, timestamp, name, rank, level, zone, note, officernote, online, status, clazz):
         self.index = index
         self.timestamp = timestamp

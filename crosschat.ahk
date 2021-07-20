@@ -18,12 +18,12 @@ close(all) {
 		didclose = false
 		if all {
 			if WinExist("crosschat") {
-				WinClose, crosschat
+				WinClose
 				didclose = true
 			}
 		}
 		if WinExist("World of Warcraft") {
-			WinClose, World of Warcraft
+			WinClose
 			didclose = true
 		}
 		if %didclose% {

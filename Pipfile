@@ -15,6 +15,7 @@ asyncio = "*"
 pynacl = "*"
 pytz = "*"
 discord-py-slash-command = "*"
+graphene = "*"
 
 [dev-packages]
 

@@ -1,3 +1,4 @@
+"""Handles saving and loading Channel timestamp states"""
 import logging
 
 import settings
@@ -9,6 +10,7 @@ timestamps = {}
 
 
 def save_state(timestamp, channel):
+    """Save the Channel timestamp to file and cache"""
     global timestamps
     if timestamp != 0:
         LOG.info("Saving timestamp " + str(timestamp))
@@ -21,6 +23,7 @@ def save_state(timestamp, channel):
 
 
 def load_state(channel):
+    """Load the Channel timestamp from file (or cache)"""
     global timestamps
     if timestamps.get(channel) is None and settings.load().has_section('state') and settings.load().has_option('state', channel+'_timestamp'):
         timestamps[channel] = float(settings.load()['state'][channel+'_timestamp'])

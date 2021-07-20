@@ -1,3 +1,4 @@
+"""Handles sending World of Warcraft Messages to Discord without duplicating them"""
 import logging
 import time
 
@@ -10,18 +11,21 @@ LOG = logging.getLogger(__name__)
 
 
 def is_new_message(message, channel):
+    """Checks if a Message has a newer timestamp than the last one sent"""
     if load_state(channel) < message:
         return True
     return False
 
 
 def add_message(messages, timestamp, player, line, channel):
+    """Adds a new Message to a Message list"""
     message = Message(timestamp, player, line)
     if is_new_message(message, channel):
         messages.append(message)
 
 
 def combine_messages(i, j, messages):
+    """Combines a group of Messages into a single string for bulk sending"""
     bulk_message = ''
     for index in range(i, j):
         bulk_message = bulk_message + str(messages[index]) + '\n'
@@ -29,6 +33,7 @@ def combine_messages(i, j, messages):
 
 
 def push_with_retries(url, timestamp, content, channel, attempts):
+    """Sends Messages to Discord with automatic exponential retry in case the servers are overloaded"""
     response = requests.post(url=url, data={'content': content})
     if response.status_code == 429:
         LOG.info('waiting for request limit...')
@@ -40,6 +45,7 @@ def push_with_retries(url, timestamp, content, channel, attempts):
 
 
 def push_all(url, messages, channel):
+    """Sends all messages to Discord"""
     messages_length = len(messages)
     bulk_index = 0
     while messages_length > 0 and bulk_index < messages_length:

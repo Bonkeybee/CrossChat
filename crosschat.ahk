@@ -1,9 +1,6 @@
 #SingleInstance force
 CoordMode, Mouse, Window
 SetKeyDelay, 100, 100
-if (!A_IsAdmin){
-	Run *RunAs "%A_AhkPath%" "%A_ScriptFullPath%"
-}
 
 
 sleep(min, max*) {
@@ -38,7 +35,7 @@ close(all) {
 open() {
 	Loop {
 		didopen = false
-		if not WinExist("Administrator: crosschat") {
+		if not WinExist("crosschat") {
 			Run, crosschat.bat >>ahk.log
 			didopen = true
 		}

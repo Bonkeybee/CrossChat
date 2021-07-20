@@ -38,7 +38,7 @@ close(all) {
 open() {
 	Loop {
 		didopen = false
-		if not WinExist("crosschat") {
+		if not WinExist("Administrator: crosschat") {
 			Run, crosschat.bat >>ahk.log
 			didopen = true
 		}

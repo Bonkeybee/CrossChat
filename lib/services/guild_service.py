@@ -47,7 +47,7 @@ def parse_guild_members(data, is_online: bool = True):
 def parse_guild_member(index, data):
     """Parses a section of the Guild Info file into a Member"""
     name = data[index + 1].split('"')[1].split('-')[0]
-    index = int(data[index + 2].split(',')[0].strip())
+    guild_index = int(data[index + 2].split(',')[0].strip())
     timestamp = float(data[index + 3].split(',')[0].strip())
     rank = data[index + 4].split('"')[1]
     level = int(data[index + 5].split(',')[0].strip())
@@ -71,4 +71,4 @@ def parse_guild_member(index, data):
     else:
         status = "Available"
     clazz = data[index + 11].split('"')[1].title()
-    return Member(index, timestamp, name, rank, level, zone, note, officernote, online, status, clazz)
+    return Member(guild_index, timestamp, name, rank, level, zone, note, officernote, online, status, clazz)

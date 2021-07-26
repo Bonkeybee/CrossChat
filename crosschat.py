@@ -268,11 +268,11 @@ async def restart(context: SlashContext):
 async def audit(context: SlashContext, autocorrect: bool = False):
     message = '**Audit Report:** \n'
     await context.send(message, delete_after=60)
-    check_discord_members_for_name_in_note(context)
-    check_members_for_name_match_and_permissions(context, autocorrect)
+    await check_discord_members_for_name_in_note(context)
+    await check_members_for_name_match_and_permissions(context, autocorrect)
 
 
-def check_discord_members_for_name_in_note(context):
+async def check_discord_members_for_name_in_note(context):
     message = ''
     game_members = get_guild_members(False)
     for discord_member in context.guild.members:
@@ -283,7 +283,7 @@ def check_discord_members_for_name_in_note(context):
                     is_member = is_member_discord_member(game_member, discord_member)
                 if not is_member:
                     message = message + '(<@' + str(discord_member.id) + '>) is not a guild member (set note or kick)\n'
-    send_temp_message(context, message)
+    await send_temp_message(context, message)
 
 
 def is_member_discord_member(game_member, discord_member):
@@ -307,7 +307,7 @@ async def check_members_for_name_match_and_permissions(context, autocorrect):
                     message = message + game_member.name + '(<@' + str(discord_member.id) + '>) does not have member permissions (grant or remove note)\n'
                     if autocorrect:
                         await discord_member.add_roles(context.guild.get_role(int(settings.load()['discord']['member_role'])))
-    send_temp_message(context, message)
+    await send_temp_message(context, message)
 
 
 async def send_temp_message(context, message):
@@ -328,7 +328,7 @@ async def who(context: SlashContext, level: str = None, name: str = None):
         message = '**Found ' + str(members.__len__()) + ' matches:**\n'
         for member in members:
             message += member.__str__() + '\n'
-        send_temp_message(context, message)
+        await send_temp_message(context, message)
     else:
         members = get_guild_members()
         message = '**' + str(members.__len__()) + ' members online:**\n'

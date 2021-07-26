@@ -276,19 +276,23 @@ async def check_discord_members_for_name_in_note(context):
     message = ''
     game_members = get_guild_members(False)
     for discord_member in context.guild.members:
-        for role in discord_member.roles:
-            if role.id == int(settings.load()['discord']['member_role']):
-                is_member = False
-                for game_member in game_members:
-                    is_member = is_member_discord_member(game_member, discord_member)
-                if not is_member:
-                    message = message + '(<@' + str(discord_member.id) + '>) is not a guild member (set note or kick)\n'
+        if has_member_role(discord_member) and not is_discord_member_actual_member(discord_member, game_members):
+            message = message + '(<@' + str(discord_member.id) + '>) is not a guild member (set note or kick)\n'
     await send_temp_message(context, message)
 
 
-def is_member_discord_member(game_member, discord_member):
-    if game_member.officernote == discord_member.__str__():
-        return True
+def has_member_role(discord_member):
+    for role in discord_member.roles:
+        if role.id == int(settings.load()['discord']['member_role']):
+            return True
+    return False
+
+
+def is_discord_member_actual_member(discord_member, game_members):
+    for game_member in game_members:
+        if game_member.officernote == discord_member.__str__():
+            return True
+    return False
 
 
 async def check_members_for_name_match_and_permissions(context, autocorrect):

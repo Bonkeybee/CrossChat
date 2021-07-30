@@ -1,3 +1,4 @@
+"""Handles key combos to restart the service on the host computer"""
 import asyncio
 
 import pyautogui

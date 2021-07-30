@@ -1,6 +1,7 @@
 """Defines several constants to be used by the project"""
 import re
 
+
 MENTION_PATTERN = re.compile('<@.+>')
 AHK_PATTERN = re.compile('{.*}')
 RESTART_PATTERN = re.compile('!restart')

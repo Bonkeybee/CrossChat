@@ -3,6 +3,10 @@
   <component name="AhkProjectSettings">
     <option name="defaultAhkSdk" value="AutoHotkey" />
   </component>
+  <component name="PWA">
+    <option name="enabled" value="true" />
+    <option name="wasEnabledAtLeastOnce" value="true" />
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_15" project-jdk-name="Pipenv (CrossChat)" project-jdk-type="Python SDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>

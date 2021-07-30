@@ -14,3 +14,6 @@ def load():
         config = configparser.ConfigParser()
         config.read(os.getcwd()+'\\'+constants.CONFIG_FILE)
     return config
+
+
+USER_CHANNEL_IDS = {int(load()['discord']['guild_crosschat_channel_id']): 'guild', int(load()['discord']['officer_crosschat_channel_id']): 'officer'}

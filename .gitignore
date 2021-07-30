@@ -1,7 +1,7 @@
 **/.idea/workspace.xml
 **/.idea/tasks.xml
-**/.idea/sonarlint/issuestore
 
+/out
 
 __pycache__/
 *.py[cod]
@@ -10,3 +10,4 @@ __pycache__/
 *.log
 *.txt
 *.ini
+

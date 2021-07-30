@@ -8,8 +8,6 @@ from os import system
 
 import asyncio
 import discord
-import pyautogui
-from better_profanity import profanity
 from discord import HTTPException
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
@@ -19,9 +17,12 @@ from tendo import singleton
 
 import settings
 from lib.beans.message import Message
+from lib.services.audit_service import check_discord_members_for_name_in_note, check_members_for_name_match_and_permissions
 from lib.services.chat_log_service import parse_chat_log, load_chat_log
-from lib.services.guild_service import get_guild_members
-from lib.services.message_service import push_all, add_message
+from lib.services.exception_service import send_exception
+from lib.services.message_service import push_all, add_message, handle_user_message
+from lib.services.restart_service import handle_restart
+from lib.services.who_service import detailed_who, simple_who
 from lib.utils import constants
 
 system('title ' + 'crosschat')
@@ -39,11 +40,9 @@ logging.basicConfig(
 LOG = logging.getLogger(__name__)
 LOG.info("Starting CROSSCHAT...")
 
-profanity.load_censor_words()
+
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 slash = SlashCommand(bot, sync_commands=True)
-
-USER_CHANNEL_IDS = {int(settings.load()['discord']['guild_crosschat_channel_id']): 'guild', int(settings.load()['discord']['officer_crosschat_channel_id']): 'officer'}
 
 
 # noinspection PyBroadException
@@ -59,9 +58,7 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                 push_all(settings.load()['discord'][webhook_url_option], messages, channel)
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
-        LOG.exception('Unexpected exception: ' + repr(e), e, exc_info=True)
-        for key in USER_CHANNEL_IDS:
-            await bot.get_channel(key).send('Unexpected exception: ' + repr(e))
+        await send_exception(e, bot)
 
 
 def get_chat_log_messages(chat_log_file_option, starting_key, channel):
@@ -222,102 +219,29 @@ async def on_ready():
     LOG.info(bot.user.name + ' has connected to Discord!')
 
 
-async def handle_restart():
-    """Send a key-combination on the host to trigger the Auto-Hotkey script reload"""
-    pyautogui.keyDown('ctrl')
-    pyautogui.press('r')
-    await asyncio.sleep(1)
-    pyautogui.press('q')
-    pyautogui.keyUp('ctrl')
-
-
-async def handle_user_message(message):
-    """Validate and save the user-sent message to a file to be read by the Auto-Hotkey script"""
-    if constants.MENTION_PATTERN.match(message.content) or constants.AHK_PATTERN.match(message.content):
-        await message.channel.send(f'VALIDATION ERROR: {message.author.name}, your message was not sent.')
-        return
-    message.content = message.content.replace('\n', ' ').replace('\t', ' ')
-    message.content = profanity.censor(message.content)
-    name = message.author.name
-    if message.author.nick:
-        name = message.author.nick
-    line = ("(" + name + "): " + message.content).encode("LATIN-1", "ignore").decode("UTF-8", "ignore")
-    if line:
-        try:
-            channel = USER_CHANNEL_IDS[message.channel.id]
-            LOG.info('[' + channel + ']: ' + line)
-            file = open(channel + '_crosschat.txt', 'a+')
-            file.write(line + '\n')
-            file.close()
-        except OSError:
-            await message.channel.send(f'ERROR: {message.author.name}, your message was not sent.')
+@bot.event
+async def on_message(message):
+    """Discord message handling"""
+    if not message.author.bot:
+        await handle_user_message(message)
 
 
 @slash.slash(name="restart", description="restarts crosschat", guild_ids=[int(settings.load()['discord']['guild_id'])])
 @slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['admin_role']), SlashCommandPermissionType.ROLE, True)])
 async def restart(context: SlashContext):
+    """Restarts the CROSSCHAT service"""
     await context.send("Restarting CROSSCHAT, standby...")
     await handle_restart()
 
 
-@slash.slash(name="audit", description="run a member audit and show the report", guild_ids=[int(settings.load()['discord']['guild_id'])],
-             options=[
-                 create_option(name="autocorrect", description="automatically fix problems", option_type=SlashCommandOptionType.BOOLEAN, required=False)
-             ])
+@slash.slash(name="audit", description="run a member audit and show the report", guild_ids=[int(settings.load()['discord']['guild_id'])])
 @slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['admin_role']), SlashCommandPermissionType.ROLE, True)])
-async def audit(context: SlashContext, autocorrect: bool = False):
-    message = '**Audit Report:** \n'
-    await context.send(message, delete_after=60)
-    await check_discord_members_for_name_in_note(context)
-    await check_members_for_name_match_and_permissions(context, autocorrect)
-
-
-async def check_discord_members_for_name_in_note(context):
-    message = ''
-    game_members = get_guild_members(False)
-    for discord_member in context.guild.members:
-        if has_member_role(discord_member) and not is_discord_member_actual_member(discord_member, game_members):
-            message = message + '(<@' + str(discord_member.id) + '>) is not a guild member (set note or kick)\n'
-    await send_temp_message(context, message)
-
-
-def has_member_role(discord_member):
-    for role in discord_member.roles:
-        if role.id == int(settings.load()['discord']['member_role']):
-            return True
-    return False
-
-
-def is_discord_member_actual_member(discord_member, game_members):
-    for game_member in game_members:
-        if game_member.officernote == discord_member.__str__():
-            return True
-    return False
-
-
-async def check_members_for_name_match_and_permissions(context, autocorrect):
-    message = ''
-    game_members = get_guild_members(False)
-    for game_member in game_members:
-        for discord_member in context.guild.members:
-            if game_member.officernote == discord_member.__str__():
-                is_member = False
-                for role in discord_member.roles:
-                    if role.id == int(settings.load()['discord']['member_role']):
-                        is_member = True
-                        if str.lower(game_member.name) not in str.lower(discord_member.display_name):
-                            message = message + game_member.name + '(<@' + str(discord_member.id) + '>) character and discord name (' + discord_member.display_name + ') does not match (change nickname or move note)\n'
-                if not is_member:
-                    message = message + game_member.name + '(<@' + str(discord_member.id) + '>) does not have member permissions (grant or remove note)\n'
-                    if autocorrect:
-                        await discord_member.add_roles(context.guild.get_role(int(settings.load()['discord']['member_role'])))
-    await send_temp_message(context, message)
-
-
-async def send_temp_message(context, message):
-    if len(message) > 0:
-        message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
-        await context.send(message, delete_after=60)
+async def audit(context: SlashContext):
+    """Generates an audit report which contains members with mismatched permissions or names"""
+    await send_temp_message(context, '**Generating Audit Report:** \n')
+    await send_temp_message(context, check_discord_members_for_name_in_note(context.guild.members))
+    await send_temp_message(context, check_members_for_name_match_and_permissions(context.guild.members))
+    await send_temp_message(context, '**Audit Report Complete**')
 
 
 @slash.slash(name="who", description="shows who is online in the guild", guild_ids=[int(settings.load()['discord']['guild_id'])],
@@ -327,45 +251,18 @@ async def send_temp_message(context, message):
              ])
 @slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['member_role']), SlashCommandPermissionType.ROLE, True)])
 async def who(context: SlashContext, level: str = None, name: str = None):
+    """Generates a who report which contains character data from the game"""
     if level or name:
-        members = filter_members_by_name(name, filter_members_by_level(level, get_guild_members(False)))
-        message = '**Found ' + str(members.__len__()) + ' matches:**\n'
-        for member in members:
-            message += member.__str__() + '\n'
-        await send_temp_message(context, message)
+        await send_temp_message(context, detailed_who(level, name))
     else:
-        members = get_guild_members()
-        message = '**' + str(members.__len__()) + ' members online:**\n'
-        for member in members:
-            message += member.__simple__() + '\n'
+        await send_temp_message(context, simple_who())
+
+
+async def send_temp_message(context, message):
+    """Sends a message to discord that auto-deletes after a minute"""
+    if len(message) > 0:
         message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
         await context.send(message, delete_after=60)
-
-
-def filter_members_by_level(level, members):
-    if level:
-        if '+' in level:
-            level = int(''.join(filter(str.isdigit, level)))
-            members = list(filter(lambda m: m.level >= level, members))
-        elif '-' in level:
-            level = int(''.join(filter(str.isdigit, level)))
-            members = list(filter(lambda m: m.level <= level, members))
-        else:
-            level = int(''.join(filter(str.isdigit, level)))
-            members = list(filter(lambda m: m.level == level, members))
-    return members
-
-def filter_members_by_name(name, members):
-    if name:
-        members = list(filter(lambda m: str.lower(name) in str.lower(m.name), members))
-    return members
-
-
-@bot.event
-async def on_message(message):
-    """Discord message handling"""
-    if not message.author.bot and message.channel.id in USER_CHANNEL_IDS.keys():
-        await handle_user_message(message)
 
 
 guildchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url', None, None, None, None, None))

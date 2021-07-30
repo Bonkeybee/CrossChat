@@ -3,11 +3,16 @@ import logging
 import time
 
 import requests
+from better_profanity import profanity
 
 from lib.beans.message import Message
+from lib.services.exception_service import send_user_exception
 from lib.services.state_service import load_state, save_state
+from lib.utils import constants
+from settings import USER_CHANNEL_IDS
 
 LOG = logging.getLogger(__name__)
+profanity.load_censor_words()
 
 
 def is_new_message(message, channel):
@@ -53,3 +58,26 @@ def push_all(url, messages, channel):
         bulk_message = combine_messages(bulk_index, max_index, messages)
         bulk_index = max_index
         push_with_retries(url, float(messages[bulk_index - 1].timestamp), bulk_message, channel, 0)
+
+
+async def handle_user_message(message):
+    """Validate and save the user-sent message to a file to be read by the Auto-Hotkey script"""
+    if message.channel.id in USER_CHANNEL_IDS.keys():
+        if constants.MENTION_PATTERN.match(message.content) or constants.AHK_PATTERN.match(message.content):
+            await send_user_exception(message.channel, "VALIDATION ERROR", message.author.name, "your message was not sent.")
+            return
+        message.content = message.content.replace('\n', ' ').replace('\t', ' ')
+        message.content = profanity.censor(message.content)
+        name = message.author.name
+        if message.author.nick:
+            name = message.author.nick
+        line = ("(" + name + "): " + message.content).encode("LATIN-1", "ignore").decode("UTF-8", "ignore")
+        if line:
+            try:
+                channel = USER_CHANNEL_IDS[message.channel.id]
+                LOG.info('[' + channel + ']: ' + line)
+                file = open(channel + '_crosschat.txt', 'a+')
+                file.write(line + '\n')
+                file.close()
+            except OSError:
+                await send_user_exception(message.channel, "GENERAL ERROR", message.author.name, "your message was not sent.")

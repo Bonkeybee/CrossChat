@@ -1,4 +1,6 @@
 """Handles performing the Discord/Member role auditing"""
+from discord import Member
+
 import settings
 from lib.services.guild_service import get_guild_members
 
@@ -20,10 +22,10 @@ def has_member_role(discord_member):
             return True
     return False
 
-def is_discord_member_actual_member(discord_member, game_members):
+def is_discord_member_actual_member(discord_member: Member, game_members):
     """Checks if the discord member username is part of the member"""
     for game_member in game_members:
-        if game_member.officernote == discord_member.__str__():
+        if game_member.officernote == str(discord_member.id) or game_member.officernote == discord_member.__str__():
             return True
     return False
 

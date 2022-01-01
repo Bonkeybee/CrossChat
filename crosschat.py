@@ -7,6 +7,7 @@ import time
 from collections import OrderedDict
 from http import HTTPStatus
 from os import system
+import os
 
 import discord
 from discord import HTTPException
@@ -62,14 +63,13 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                 messages = await handle_embed(messages, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns)
             if messages:
                 push_all(settings.load()['discord'][webhook_url_option], messages, channel)
-
-            if channel == "guild":
+            if channel == "guild" and voice_client.is_connected():
                 for message in messages:
                     while voice_client.is_playing():
                         await asyncio.sleep(0.1)
                     speech = gTTS(text=message.player + " says: " + message.raw)
-                    speech.save("text.mp3")
-                    voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="text.mp3"))
+                    speech.save("sounds/text.mp3")
+                    voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/text.mp3"))
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
         await send_exception(e, bot)
@@ -232,12 +232,27 @@ async def on_ready():
     """Indicator for when the bot connects to discord"""
     global voice_client
     LOG.info(bot.user.name + ' has connected to Discord!')
-    voice_client = await bot.get_channel(586283131334819842).connect()
+    voice_client = await bot.get_channel(int(settings.load()['discord']['guild_general_voice_channel_id'])).connect()
     speech = gTTS(text="Cross Chat Connected. Hello!")
-    speech.save("hello.mp3")
-    voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="hello.mp3"))
+    if not os.path.exists("sounds"):
+        os.makedirs("sounds")
+    speech.save("sounds/connected.mp3")
     while voice_client.is_playing():
         await asyncio.sleep(0.1)
+    voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/connected.mp3"))
+
+
+@bot.event
+async def on_voice_state_update(member, before, after):
+    if voice_client is not None and voice_client.is_connected() and (before.channel is None or before.channel.id != int(settings.load()['discord']['guild_general_voice_channel_id'])) and after.channel is not None and after.channel.id == int(settings.load()['discord']['guild_general_voice_channel_id']):
+        name = member.nick
+        if name is None:
+            name = member.name
+        speech = gTTS(text="Hello " + name)
+        speech.save("sounds/hello.mp3")
+        while voice_client.is_playing():
+            await asyncio.sleep(0.1)
+        voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/hello.mp3"))
 
 
 @bot.event

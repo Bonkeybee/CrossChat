@@ -22,6 +22,9 @@ def has_member_role(discord_member):
             return True
     return False
 
+# def check_mains_for_note():
+#     for
+
 def is_discord_member_actual_member(discord_member: Member, game_members):
     """Checks if the discord member username is part of the member"""
     for game_member in game_members:

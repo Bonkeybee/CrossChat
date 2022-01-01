@@ -1,4 +1,6 @@
 """Handles the discord<->game portion of crosschat"""
+import asyncio
+import atexit
 import logging
 import re
 import time
@@ -6,13 +8,13 @@ from collections import OrderedDict
 from http import HTTPStatus
 from os import system
 
-import asyncio
 import discord
 from discord import HTTPException
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
-from discord_slash.utils.manage_commands import create_option, create_permission
 from discord_slash.model import SlashCommandPermissionType, SlashCommandOptionType
+from discord_slash.utils.manage_commands import create_option, create_permission
+from gtts import gTTS
 from tendo import singleton
 
 import settings
@@ -43,11 +45,15 @@ LOG.info("Starting CROSSCHAT...")
 
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 slash = SlashCommand(bot, sync_commands=True)
+voice_client = None
 
 
 # noinspection PyBroadException
 async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, webhook_url_option, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns):
     """Reads the World of Warcraft addon chat logs and pushes new messages to the Discord webhook and/or embed"""
+    global voice_client
+    while voice_client is None:
+        await asyncio.sleep(0.1)
     try:
         await bot.wait_until_ready()
         while True:
@@ -56,6 +62,14 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                 messages = await handle_embed(messages, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns)
             if messages:
                 push_all(settings.load()['discord'][webhook_url_option], messages, channel)
+
+            if channel == "guild":
+                for message in messages:
+                    while voice_client.is_playing():
+                        await asyncio.sleep(0.1)
+                    speech = gTTS(text=message.player + " says: " + message.raw)
+                    speech.save("text.mp3")
+                    voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="text.mp3"))
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
         await send_exception(e, bot)
@@ -216,7 +230,14 @@ def add_embed_fields(old_messages, embed):
 @bot.event
 async def on_ready():
     """Indicator for when the bot connects to discord"""
+    global voice_client
     LOG.info(bot.user.name + ' has connected to Discord!')
+    voice_client = await bot.get_channel(586283131334819842).connect()
+    speech = gTTS(text="Cross Chat Connected. Hello!")
+    speech.save("hello.mp3")
+    voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="hello.mp3"))
+    while voice_client.is_playing():
+        await asyncio.sleep(0.1)
 
 
 @bot.event
@@ -265,8 +286,13 @@ async def send_temp_message(context, message):
         await context.send(message, delete_after=60)
 
 
+async def on_close():
+    await bot.close()
+
+
 guildchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url', None, None, None, None, None))
 officerchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('officer_chat_log_file', 'OFFICERCHATLOG = {', 'officer', 'officer_chat_webhook_url', None, None, None, None, None))
 systemchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('system_chat_log_file', 'SYSTEMCHATLOG = {', 'system', 'system_chat_webhook_url', None, None, None, None, None))
 lfgchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('lfg_chat_log_file', 'LFGCHATLOG = {', 'lfg', 'lfg_chat_webhook_url', 'LookingForGroup', 'lfg_crosschat_channel_id', 'lfg_embed_message_id', [constants.LAZY_LFG_PATTERN, constants.BOOST_PATTERN, constants.GUILD_PATTERN, constants.RECRUITING_PATTERN], [constants.LFG_PATTERN]))
 discordbot = asyncio.get_event_loop().create_task(bot.run(settings.load()['discord']['token']))
+atexit.register(on_close)

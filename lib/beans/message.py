@@ -17,8 +17,8 @@ class Message:
     def __init__(self, timestamp, player, line):
         self.timestamp = timestamp
         self.player = player.encode("UTF-8", "ignore").decode("UTF-8", "ignore")
-        self.line = replace_talent_patterns(replace_spell_patterns(replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_mentions(replace_escape_sequences(line)), False), False), False), False), False).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
-        self.raw = replace_talent_patterns(replace_spell_patterns(replace_enchant_patterns(replace_item_patterns(replace_raidmarks(line, True), True), True), True), True).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
+        self.line = replace_talent_patterns(replace_spell_patterns(replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_mentions(replace_escape_sequences(line, False)), False), False), False), False), False).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
+        self.raw = replace_talent_patterns(replace_spell_patterns(replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_escape_sequences(line, True), True), True), True), True), True).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
 
     def __lt__(self, other) -> bool:
         if type(other) is Message:
@@ -51,12 +51,19 @@ def is_dst() -> bool:
     return not (pytz.timezone('US/Eastern').localize(datetime(year=datetime.now().year, month=1, day=1)).utcoffset() == datetime.now().utcoffset())
 
 
-def replace_escape_sequences(line: str) -> str:
+def replace_escape_sequences(line: str, phonetic: bool) -> str:
     """Replaces any escape sequences found in the string that will interfere with Discord"""
-    if '*' in line:
-        LOG.debug("Mutating(escape_sequences): " + line)
-        line = line.replace('*', '\*')
-        line = line.replace('\\\*', '\*')
+    debug = 'Mutating(escape_sequences): '
+    if phonetic:
+        if '*' in line:
+            LOG.debug(debug + line)
+            line = line.replace('*', '')
+            line = line.replace('\\\*', '')
+    else:
+        if '*' in line:
+            LOG.debug(debug + line)
+            line = line.replace('*', '\*')
+            line = line.replace('\\\*', '\*')
     return line
 
 

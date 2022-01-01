@@ -8,22 +8,22 @@ RESTART_PATTERN = re.compile('!restart')
 
 ITEM_REPLACE_REGEX = '\|(.+Hitem:([0-9]+).+)\|r'
 ITEM_PATTERN = re.compile('.*' + ITEM_REPLACE_REGEX + '.*')
-ITEM_PHONETIC_REPLACE_REGEX = '\|(.+Hitem:[0-9]+.+\[([a-zA-Z ]+)\].+)\|r'
+ITEM_PHONETIC_REPLACE_REGEX = '\|(.+Hitem:[0-9]+.+\[([a-zA-Z\',\:\- ]+)\].+)\|r'
 ITEM_PHONETIC_PATTERN = re.compile('.*' + ITEM_PHONETIC_REPLACE_REGEX + '.*')
 
 ENCHANT_REPLACE_REGEX = '\|(.+Henchant:([0-9]+).+)\|r'
 ENCHANT_PATTERN = re.compile('.*' + ENCHANT_REPLACE_REGEX + '.*')
-ENCHANT_PHONETIC_REPLACE_REGEX = '\|(.+Henchant:[0-9]+.+\[([a-zA-Z ]+)\].+)\|r'
+ENCHANT_PHONETIC_REPLACE_REGEX = '\|(.+Henchant:[0-9]+.+\[([a-zA-Z\',\:\- ]+)\].+)\|r'
 ENCHANT_PHONETIC_PATTERN = re.compile('.*' + ENCHANT_PHONETIC_REPLACE_REGEX + '.*')
 
 SPELL_REPLACE_REGEX = '\|(.+Hspell:([0-9]+).+)\|r'
 SPELL_PATTERN = re.compile('.*' + SPELL_REPLACE_REGEX + '.*')
-SPELL_PHONETIC_REPLACE_REGEX = '\|(.+Hspell:[0-9]+.+\[([a-zA-Z ]+)\].+)\|r'
+SPELL_PHONETIC_REPLACE_REGEX = '\|(.+Hspell:[0-9]+.+\[([a-zA-Z\',\:\- ]+)\].+)\|r'
 SPELL_PHONETIC_PATTERN = re.compile('.*' + SPELL_PHONETIC_REPLACE_REGEX + '.*')
 
 TALENT_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+(\[[a-zA-Z ]+\]).+)\|r'
 TALENT_PATTERN = re.compile('.*' + TALENT_REPLACE_REGEX + '.*')
-TALENT_PHONETIC_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+\[([a-zA-Z ]+)\].+)\|r'
+TALENT_PHONETIC_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+\[([a-zA-Z\',\:\- ]+)\].+)\|r'
 TALENT_PHONETIC_PATTERN = re.compile('.*' + TALENT_PHONETIC_REPLACE_REGEX + '.*')
 
 

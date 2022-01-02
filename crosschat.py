@@ -68,7 +68,7 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                 for message in messages:
                     while voice_client.is_playing():
                         await asyncio.sleep(0.1)
-                    voice = random.randint(1, 8)
+                    voice = random.randint(1, 5)
                     path = "sounds/text.mp3"
                     says = " says: "
                     if voice == 1:
@@ -88,20 +88,11 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                         speech = gTTS(text=message.player + says + message.raw, lang="en", tld="ca")
                         speech.save(path)
                     elif voice == 5:
-                        LOG.info("english-india")
-                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="co.in")
-                        speech.save(path)
-                    elif voice == 6:
                         LOG.info("english-ireland")
                         speech = gTTS(text=message.player + says + message.raw, lang="en", tld="ie")
                         speech.save(path)
-                    elif voice == 7:
-                        LOG.info("english-africa")
-                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="co.za")
-                        speech.save(path)
                     await asyncio.sleep(0.1)
                     voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/text.mp3"))
-                    await asyncio.sleep(0.1)
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
         await send_exception(e, bot)

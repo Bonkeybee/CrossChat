@@ -27,7 +27,7 @@ def load_guild_info():
     return data
 
 
-def parse_guild_members(data, is_online: bool = True):
+def parse_guild_members(data, is_online: bool = True) -> list[Member]:
     """Parses the Guild Info file into Members"""
     data_start = None
     members = []

@@ -8,6 +8,7 @@ from collections import OrderedDict
 from http import HTTPStatus
 from os import system
 import os
+import random
 
 import discord
 from discord import HTTPException
@@ -67,8 +68,73 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                 for message in messages:
                     while voice_client.is_playing():
                         await asyncio.sleep(0.1)
-                    speech = gTTS(text=message.player + " says: " + message.raw)
-                    speech.save("sounds/text.mp3")
+                    voice = random.randint(1, 17)
+                    path = "sounds/text.mp3"
+                    says = " says: "
+                    if voice == 1:
+                        LOG.info("english-australia")
+                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="com.au")
+                        speech.save(path)
+                    elif voice == 2:
+                        LOG.info("english-uk")
+                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="co.uk")
+                        speech.save(path)
+                    elif voice == 3:
+                        LOG.info("english-us")
+                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="com")
+                        speech.save(path)
+                    elif voice == 4:
+                        LOG.info("english-canada")
+                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="ca")
+                        speech.save(path)
+                    elif voice == 5:
+                        LOG.info("english-india")
+                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="co.in")
+                        speech.save(path)
+                    elif voice == 6:
+                        LOG.info("english-ireland")
+                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="ie")
+                        speech.save(path)
+                    elif voice == 7:
+                        LOG.info("english-africa")
+                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="co.za")
+                        speech.save(path)
+                    elif voice == 8:
+                        LOG.info("french-canada")
+                        speech = gTTS(text=message.player + says + message.raw, lang="fr", tld="ca")
+                        speech.save(path)
+                    elif voice == 9:
+                        LOG.info("french-france")
+                        speech = gTTS(text=message.player + says + message.raw, lang="fr", tld="fr")
+                        speech.save(path)
+                    elif voice == 10:
+                        LOG.info("mandarin-china")
+                        speech = gTTS(text=message.player + says + message.raw, lang="zh-CN", tld="com")
+                        speech.save(path)
+                    elif voice == 11:
+                        LOG.info("mandarin-taiwan")
+                        speech = gTTS(text=message.player + says + message.raw, lang="zh-TW", tld="com")
+                        speech.save(path)
+                    elif voice == 12:
+                        LOG.info("portuguese-brazil")
+                        speech = gTTS(text=message.player + says + message.raw, lang="pt", tld="com.br")
+                        speech.save(path)
+                    elif voice == 13:
+                        LOG.info("portuguese-protugal")
+                        speech = gTTS(text=message.player + says + message.raw, lang="pt", tld="pt")
+                        speech.save(path)
+                    elif voice == 14:
+                        LOG.info("spanish-mexico")
+                        speech = gTTS(text=message.player + says + message.raw, lang="es", tld="com.mx")
+                        speech.save(path)
+                    elif voice == 15:
+                        LOG.info("spanish-spain")
+                        speech = gTTS(text=message.player + says + message.raw, lang="es", tld="es")
+                        speech.save(path)
+                    elif voice == 16:
+                        LOG.info("spanish-us")
+                        speech = gTTS(text=message.player + says + message.raw, lang="es", tld="com")
+                        speech.save(path)
                     voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/text.mp3"))
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
@@ -236,9 +302,9 @@ async def on_ready():
     speech = gTTS(text="Cross Chat Connected. Hello!")
     if not os.path.exists("sounds"):
         os.makedirs("sounds")
-    speech.save("sounds/connected.mp3")
     while voice_client.is_playing():
         await asyncio.sleep(0.1)
+    speech.save("sounds/connected.mp3")
     voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/connected.mp3"))
 
 
@@ -249,9 +315,9 @@ async def on_voice_state_update(member, before, after):
         if name is None:
             name = member.name
         speech = gTTS(text="Hello " + name)
-        speech.save("sounds/hello.mp3")
         while voice_client.is_playing():
             await asyncio.sleep(0.1)
+        speech.save("sounds/hello.mp3")
         voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/hello.mp3"))
 
 

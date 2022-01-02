@@ -57,8 +57,7 @@ def replace_escape_sequences(line: str, phonetic: bool) -> str:
     if phonetic:
         if '*' in line:
             LOG.debug(debug + line)
-            line = line.replace('*', '')
-            line = line.replace('\\\*', '')
+            line = re.sub(r"([!@#$%^&\*()_] *)+", "$1", line)
     else:
         if '*' in line:
             LOG.debug(debug + line)

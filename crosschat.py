@@ -101,8 +101,7 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                         speech.save(path)
                     await asyncio.sleep(0.1)
                     voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/text.mp3"))
-                    if os.path.exists("sounds/text.mp3"):
-                        os.remove("sounds/text.mp3")
+                    await asyncio.sleep(0.1)
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
         await send_exception(e, bot)

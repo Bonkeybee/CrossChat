@@ -68,7 +68,7 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                 for message in messages:
                     while voice_client.is_playing():
                         await asyncio.sleep(0.1)
-                    voice = random.randint(1, 17)
+                    voice = random.randint(1, 8)
                     path = "sounds/text.mp3"
                     says = " says: "
                     if voice == 1:
@@ -99,43 +99,10 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                         LOG.info("english-africa")
                         speech = gTTS(text=message.player + says + message.raw, lang="en", tld="co.za")
                         speech.save(path)
-                    elif voice == 8:
-                        LOG.info("french-canada")
-                        speech = gTTS(text=message.player + says + message.raw, lang="fr", tld="ca")
-                        speech.save(path)
-                    elif voice == 9:
-                        LOG.info("french-france")
-                        speech = gTTS(text=message.player + says + message.raw, lang="fr", tld="fr")
-                        speech.save(path)
-                    elif voice == 10:
-                        LOG.info("mandarin-china")
-                        speech = gTTS(text=message.player + says + message.raw, lang="zh-CN", tld="com")
-                        speech.save(path)
-                    elif voice == 11:
-                        LOG.info("mandarin-taiwan")
-                        speech = gTTS(text=message.player + says + message.raw, lang="zh-TW", tld="com")
-                        speech.save(path)
-                    elif voice == 12:
-                        LOG.info("portuguese-brazil")
-                        speech = gTTS(text=message.player + says + message.raw, lang="pt", tld="com.br")
-                        speech.save(path)
-                    elif voice == 13:
-                        LOG.info("portuguese-protugal")
-                        speech = gTTS(text=message.player + says + message.raw, lang="pt", tld="pt")
-                        speech.save(path)
-                    elif voice == 14:
-                        LOG.info("spanish-mexico")
-                        speech = gTTS(text=message.player + says + message.raw, lang="es", tld="com.mx")
-                        speech.save(path)
-                    elif voice == 15:
-                        LOG.info("spanish-spain")
-                        speech = gTTS(text=message.player + says + message.raw, lang="es", tld="es")
-                        speech.save(path)
-                    elif voice == 16:
-                        LOG.info("spanish-us")
-                        speech = gTTS(text=message.player + says + message.raw, lang="es", tld="com")
-                        speech.save(path)
+                    await asyncio.sleep(0.1)
                     voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/text.mp3"))
+                    if os.path.exists("sounds/text.mp3"):
+                        os.remove("sounds/text.mp3")
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
         await send_exception(e, bot)

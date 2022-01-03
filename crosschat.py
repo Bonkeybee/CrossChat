@@ -65,34 +65,14 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
             if messages:
                 push_all(settings.load()['discord'][webhook_url_option], messages, channel)
             if channel == "guild" and voice_client.is_connected():
+                path = "sounds/text.mp3"
                 for message in messages:
                     while voice_client.is_playing():
                         await asyncio.sleep(0.1)
-                    voice = random.randint(1, 5)
-                    path = "sounds/text.mp3"
-                    says = " says: "
-                    if voice == 1:
-                        LOG.info("english-australia")
-                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="com.au")
-                        speech.save(path)
-                    elif voice == 2:
-                        LOG.info("english-uk")
-                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="co.uk")
-                        speech.save(path)
-                    elif voice == 3:
-                        LOG.info("english-us")
-                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="com")
-                        speech.save(path)
-                    elif voice == 4:
-                        LOG.info("english-canada")
-                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="ca")
-                        speech.save(path)
-                    elif voice == 5:
-                        LOG.info("english-ireland")
-                        speech = gTTS(text=message.player + says + message.raw, lang="en", tld="ie")
-                        speech.save(path)
+                    speech = gTTS(text=message.player + " says: " + message.raw)
+                    speech.save(path)
                     await asyncio.sleep(0.1)
-                    voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/text.mp3"))
+                    voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=path))
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
         await send_exception(e, bot)
@@ -256,13 +236,13 @@ async def on_ready():
     global voice_client
     LOG.info(bot.user.name + ' has connected to Discord!')
     voice_client = await bot.get_channel(int(settings.load()['discord']['guild_general_voice_channel_id'])).connect()
-    speech = gTTS(text="Cross Chat Connected. Hello!")
     if not os.path.exists("sounds"):
         os.makedirs("sounds")
-    while voice_client.is_playing():
-        await asyncio.sleep(0.1)
-    speech.save("sounds/connected.mp3")
-    voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/connected.mp3"))
+    # while voice_client.is_playing():
+    #     await asyncio.sleep(0.1)
+    # speech = gTTS(text="Cross Chat Connected. Hello!")
+    # speech.save("sounds/connected.mp3")
+    # voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/connected.mp3"))
 
 
 @bot.event

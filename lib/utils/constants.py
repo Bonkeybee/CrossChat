@@ -8,7 +8,7 @@ RESTART_PATTERN = re.compile('!restart')
 
 ITEM_REPLACE_REGEX = '\|(.+Hitem:([0-9]+).+)\|r'
 ITEM_PATTERN = re.compile('.*' + ITEM_REPLACE_REGEX + '.*')
-ITEM_PHONETIC_REPLACE_REGEX = '\|(.+Hitem:[0-9]+.+\[([a-zA-Z\',\:\- ]+)\].+)\|r'
+ITEM_PHONETIC_REPLACE_REGEX = '\|(.+Hitem:[0-9]+.+\[([a-zA-Z\',\:\-\. ]+)\].+)\|r'
 ITEM_PHONETIC_PATTERN = re.compile('.*' + ITEM_PHONETIC_REPLACE_REGEX + '.*')
 
 ENCHANT_REPLACE_REGEX = '\|(.+Henchant:([0-9]+).+)\|r'

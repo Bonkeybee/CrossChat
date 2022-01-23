@@ -3,6 +3,7 @@
 **/.idea/sonarlint
 
 /out
+/sounds
 
 __pycache__/
 *.py[cod]

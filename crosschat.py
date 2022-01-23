@@ -9,6 +9,8 @@ from http import HTTPStatus
 from os import system
 import os
 import random
+from boto3 import Session
+from contextlib import closing
 
 import discord
 from discord import HTTPException
@@ -16,7 +18,6 @@ from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
 from discord_slash.model import SlashCommandPermissionType, SlashCommandOptionType
 from discord_slash.utils.manage_commands import create_option, create_permission
-from gtts import gTTS
 from tendo import singleton
 
 import settings
@@ -44,10 +45,13 @@ logging.basicConfig(
 LOG = logging.getLogger(__name__)
 LOG.info("Starting CROSSCHAT...")
 
-
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 slash = SlashCommand(bot, sync_commands=True)
 voice_client = None
+session = Session(profile_name="CrosschatPolly")
+polly = session.client("polly")
+greetings = ["Hello", "Greetings", "Hi", "Howdy", "Welcome", "Hey", "Hi-ya", "How are you", "How goes it", "Howdy-do", "What's happening", "What's up", "Uh-oh, it's"]
+farewells = ["Goodbye", "Bye", "Bye-bye", "Godspeed", "So long", "Farewell", "See ya later"]
 
 
 # noinspection PyBroadException
@@ -69,8 +73,10 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                 for message in messages:
                     while voice_client.is_playing():
                         await asyncio.sleep(0.1)
-                    speech = gTTS(text=message.player + " says: " + message.raw)
-                    speech.save(path)
+                    speech = polly.synthesize_speech(Text=message.player + " says: " + message.raw, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
+                    with closing(speech["AudioStream"]) as stream:
+                        with open(path, "wb") as file:
+                            file.write(stream.read())
                     await asyncio.sleep(0.1)
                     voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=path))
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
@@ -207,10 +213,10 @@ def get_old_messages_from_embed(discord_embed):
 def add_embed_fields(old_messages, embed):
     """Add messages to the embed fields"""
     for message in old_messages:
-        message.line = re.compile('\\b(tank|tanks)\\b', re.IGNORECASE).sub('<@&'+settings.load()['discord']['tank_role']+'>', message.line)
-        message.line = re.compile('\\b(heal|heals|healer)\\b', re.IGNORECASE).sub('<@&'+settings.load()['discord']['heal_role']+'>', message.line)
-        message.line = re.compile('\\b(dps)\\b', re.IGNORECASE).sub('<@&'+settings.load()['discord']['dps_role']+'>', message.line)
-        message.line = re.compile('\\b(all)\\b', re.IGNORECASE).sub('<@&'+settings.load()['discord']['tank_role']+'><@&'+settings.load()['discord']['heal_role']+'><@&'+settings.load()['discord']['dps_role']+'>', message.line)
+        message.line = re.compile('\\b(tank|tanks)\\b', re.IGNORECASE).sub('<@&' + settings.load()['discord']['tank_role'] + '>', message.line)
+        message.line = re.compile('\\b(heal|heals|healer)\\b', re.IGNORECASE).sub('<@&' + settings.load()['discord']['heal_role'] + '>', message.line)
+        message.line = re.compile('\\b(dps)\\b', re.IGNORECASE).sub('<@&' + settings.load()['discord']['dps_role'] + '>', message.line)
+        message.line = re.compile('\\b(all)\\b', re.IGNORECASE).sub('<@&' + settings.load()['discord']['tank_role'] + '><@&' + settings.load()['discord']['heal_role'] + '><@&' + settings.load()['discord']['dps_role'] + '>', message.line)
         duration = int((float(time.time()) - float(message.timestamp)) / 60)
         if duration <= 60:
             readable_duration = str(duration) + 'm: '
@@ -238,24 +244,37 @@ async def on_ready():
     voice_client = await bot.get_channel(int(settings.load()['discord']['guild_general_voice_channel_id'])).connect()
     if not os.path.exists("sounds"):
         os.makedirs("sounds")
-    # while voice_client.is_playing():
-    #     await asyncio.sleep(0.1)
-    # speech = gTTS(text="Cross Chat Connected. Hello!")
-    # speech.save("sounds/connected.mp3")
-    # voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/connected.mp3"))
 
 
 @bot.event
 async def on_voice_state_update(member, before, after):
-    if voice_client is not None and voice_client.is_connected() and (before.channel is None or before.channel.id != int(settings.load()['discord']['guild_general_voice_channel_id'])) and after.channel is not None and after.channel.id == int(settings.load()['discord']['guild_general_voice_channel_id']):
-        name = member.nick
-        if name is None:
-            name = member.name
-        speech = gTTS(text="Hello " + name)
-        while voice_client.is_playing():
-            await asyncio.sleep(0.1)
-        speech.save("sounds/hello.mp3")
-        voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/hello.mp3"))
+    global voice_client
+    global greetings
+    global farewells
+    if voice_client is not None and voice_client.is_connected():
+        channel = int(settings.load()['discord']['guild_general_voice_channel_id'])
+        if (before.channel is None or before.channel.id != channel) and after.channel is not None and after.channel.id == channel:
+            await ackknowledge_member("hello", member)
+        if before.channel.id == channel and (after.channel is None or after.channel.id != channel):
+            await ackknowledge_member("goodbye", member)
+
+
+async def ackknowledge_member(type, member):
+    global greetings
+    global farewells
+    name = member.nick
+    if name is None:
+        name = member.name
+    if type == "hello":
+        speech = polly.synthesize_speech(Text=random.choice(greetings) + " " + name + "!", OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
+    else:
+        speech = polly.synthesize_speech(Text=random.choice(farewells) + " " + name + "!", OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
+    while voice_client.is_playing():
+        await asyncio.sleep(0.1)
+    with closing(speech["AudioStream"]) as stream:
+        with open("sounds/"+type+".mp3", "wb") as file:
+            file.write(stream.read())
+    voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/" + type + ".mp3"))
 
 
 @bot.event
@@ -300,7 +319,7 @@ async def who(context: SlashContext, level: str = None, name: str = None):
 async def send_temp_message(context, message):
     """Sends a message to discord that auto-deletes after a minute"""
     if len(message) > 0:
-        message = message[:constants.DISCORD_MESSAGE_LIMIT-3] + (message[constants.DISCORD_MESSAGE_LIMIT-3:] and '...')
+        message = message[:constants.DISCORD_MESSAGE_LIMIT - 3] + (message[constants.DISCORD_MESSAGE_LIMIT - 3:] and '...')
         await context.send(message, delete_after=60)
 
 

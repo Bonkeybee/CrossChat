@@ -16,7 +16,7 @@ pynacl = "*"
 pytz = "*"
 discord-py-slash-command = "*"
 graphene = "*"
-gtts = "*"
+boto3 = "*"
 
 [dev-packages]
 

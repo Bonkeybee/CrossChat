@@ -73,7 +73,8 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                 for message in messages:
                     while voice_client.is_playing():
                         await asyncio.sleep(0.1)
-                    speech = polly.synthesize_speech(Text=message.player + " says: " + message.raw, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
+                    text = str(message.player + " says: " + message.raw)
+                    speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
                     with closing(speech["AudioStream"]) as stream:
                         with open(path, "wb") as file:
                             file.write(stream.read())

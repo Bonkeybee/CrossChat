@@ -267,9 +267,11 @@ async def ackknowledge_member(type, member):
     if name is None:
         name = member.name
     if type == "hello":
-        speech = polly.synthesize_speech(Text=random.choice(greetings) + " " + name + "!", OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
+        text = str(random.choice(greetings) + " " + name + "!")
+        speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
     else:
-        speech = polly.synthesize_speech(Text=random.choice(farewells) + " " + name + "!", OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
+        text = str(random.choice(farewells) + " " + name + "!")
+        speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
     while voice_client.is_playing():
         await asyncio.sleep(0.1)
     with closing(speech["AudioStream"]) as stream:

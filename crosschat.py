@@ -51,8 +51,6 @@ slash = SlashCommand(bot, sync_commands=True)
 voice_client = None
 session = Session(profile_name="CrosschatPolly")
 polly = session.client("polly")
-greetings = ["Hello", "Greetings", "Hi", "Howdy", "Welcome", "Hey", "Hi-ya", "How are you", "How goes it", "Howdy-do", "What's happening", "What's up", "Uh-oh, it's", "Hi... oh it's just you,", "State your business", "Warm wishes to you", "Hey there", "Salutations", "Wazzup", "King's honor", "What brings you here", "Strength and honor", "I've been expecting you", "Eh there"]
-farewells = ["Goodbye", "Bye", "Bye-bye", "Godspeed", "So long", "Farewell", "See ya later", "See you", "Stay the course", "Safe journey", "Watch yer back", "Be seeing you", "Keep it real", "Go with honor", "May the stars guide you", "May your blades never dull", "Go in peace", "Stay away from the Voodoo"]
 speech_lock = asyncio.Lock()
 
 
@@ -72,7 +70,7 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                 push_all(settings.load()['discord'][webhook_url_option], messages, channel)
             if channel == "guild" and voice_client.is_connected():
                 for message in messages:
-                    await play_with_retry(message.player + " says: " + message.raw, "sounds/text.mp3", "Matthew")
+                    await play_with_retry(message.player + " says: " + message.raw, "sounds/text.mp3", "Joanna")
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
         await send_exception(e, bot)

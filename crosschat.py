@@ -11,6 +11,7 @@ import os
 import random
 from boto3 import Session
 from contextlib import closing
+from botocore.exceptions import BotoCoreError, ClientError
 
 import discord
 from discord import HTTPException
@@ -74,12 +75,17 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                     while voice_client.is_playing():
                         await asyncio.sleep(0.1)
                     text = str(message.player + " says: " + message.raw)
-                    speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
-                    with closing(speech["AudioStream"]) as stream:
-                        with open(path, "wb") as file:
-                            file.write(stream.read())
-                    await asyncio.sleep(0.1)
-                    voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=path))
+                    speech = None
+                    try:
+                        speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
+                    except (BotoCoreError, ClientError) as error:
+                        print(error)
+                    if speech is not None:
+                        with closing(speech["AudioStream"]) as stream:
+                            with open(path, "wb") as file:
+                                file.write(stream.read())
+                        await asyncio.sleep(0.1)
+                        voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=path))
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
         await send_exception(e, bot)
@@ -255,29 +261,37 @@ async def on_voice_state_update(member, before, after):
     if voice_client is not None and voice_client.is_connected():
         channel = int(settings.load()['discord']['guild_general_voice_channel_id'])
         if (before.channel is None or before.channel.id != channel) and after.channel is not None and after.channel.id == channel:
-            await ackknowledge_member("hello", member)
+            await acknowledge_member("hello", member)
         if before.channel.id == channel and (after.channel is None or after.channel.id != channel):
-            await ackknowledge_member("goodbye", member)
+            await acknowledge_member("goodbye", member)
 
 
-async def ackknowledge_member(type, member):
+async def acknowledge_member(type, member):
     global greetings
     global farewells
     name = member.nick
+    speech = None
     if name is None:
         name = member.name
     if type == "hello":
         text = str(random.choice(greetings) + " " + name + "!")
-        speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
+        try:
+            speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
+        except (BotoCoreError, ClientError) as error:
+            print(error)
     else:
         text = str(random.choice(farewells) + " " + name + "!")
-        speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
-    while voice_client.is_playing():
-        await asyncio.sleep(0.1)
-    with closing(speech["AudioStream"]) as stream:
-        with open("sounds/"+type+".mp3", "wb") as file:
-            file.write(stream.read())
-    voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/" + type + ".mp3"))
+        try:
+            speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
+        except (BotoCoreError, ClientError) as error:
+            print(error)
+    if speech is not None:
+        while voice_client.is_playing():
+            await asyncio.sleep(0.1)
+        with closing(speech["AudioStream"]) as stream:
+            with open("sounds/"+type+".mp3", "wb") as file:
+                file.write(stream.read())
+        voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/" + type + ".mp3"))
 
 
 @bot.event

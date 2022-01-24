@@ -17,6 +17,7 @@ pytz = "*"
 discord-py-slash-command = "*"
 graphene = "*"
 boto3 = "*"
+typing-extensions = "*"
 
 [dev-packages]
 

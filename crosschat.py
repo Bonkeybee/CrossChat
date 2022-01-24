@@ -72,7 +72,7 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                 push_all(settings.load()['discord'][webhook_url_option], messages, channel)
             if channel == "guild" and voice_client.is_connected():
                 for message in messages:
-                    await play_with_retry(message.player + " says: " + message.raw, "sounds/text.mp3", "Justin")
+                    await play_with_retry(message.player + " says: " + message.raw, "sounds/text.mp3", "Matthew")
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
         await send_exception(e, bot)
@@ -97,7 +97,7 @@ async def play_with_retry(text, path, voice):
                 voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=path))
             except ClientException:
                 await asyncio.sleep(1)
-                await play_with_retry(voice_client, path)
+                await play_with_retry(voice_client, path, voice)
     finally:
         speech_lock.release()
 
@@ -262,23 +262,6 @@ async def on_ready():
     voice_client = await bot.get_channel(int(settings.load()['discord']['guild_general_voice_channel_id'])).connect()
     if not os.path.exists("sounds"):
         os.makedirs("sounds")
-
-
-@bot.event
-async def on_voice_state_update(member, before, after):
-
-    global voice_client
-    global greetings
-    global farewells
-    name = member.nick
-    if name is None:
-        name = member.name
-    if voice_client is not None and voice_client.is_connected():
-        channel = int(settings.load()['discord']['guild_general_voice_channel_id'])
-        if (before.channel is None or before.channel.id != channel) and after.channel is not None and after.channel.id == channel:
-            await play_with_retry(random.choice(greetings) + " " + name + "!", "sounds/hello.mp3", "Matthew")
-        if (before.channel is not None and before.channel.id == channel) and (after.channel is None or after.channel.id != channel):
-            await play_with_retry(random.choice(farewells) + " " + name + "!", "sounds/goodbye.mp3", "Matthew")
 
 
 @bot.event

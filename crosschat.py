@@ -79,7 +79,7 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                     try:
                         speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
                     except (BotoCoreError, ClientError) as error:
-                        print(error)
+                        LOG.error(error)
                     if speech is not None:
                         with closing(speech["AudioStream"]) as stream:
                             with open(path, "wb") as file:
@@ -262,7 +262,7 @@ async def on_voice_state_update(member, before, after):
         channel = int(settings.load()['discord']['guild_general_voice_channel_id'])
         if (before.channel is None or before.channel.id != channel) and after.channel is not None and after.channel.id == channel:
             await acknowledge_member("hello", member)
-        if before.channel.id == channel and (after.channel is None or after.channel.id != channel):
+        if (before.channel is not None and before.channel.id == channel) and (after.channel is None or after.channel.id != channel):
             await acknowledge_member("goodbye", member)
 
 
@@ -278,13 +278,13 @@ async def acknowledge_member(type, member):
         try:
             speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
         except (BotoCoreError, ClientError) as error:
-            print(error)
+            LOG.error(error)
     else:
         text = str(random.choice(farewells) + " " + name + "!")
         try:
             speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
         except (BotoCoreError, ClientError) as error:
-            print(error)
+            LOG.error(error)
     if speech is not None:
         while voice_client.is_playing():
             await asyncio.sleep(0.1)

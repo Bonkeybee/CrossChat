@@ -51,9 +51,9 @@ slash = SlashCommand(bot, sync_commands=True)
 voice_client = None
 session = Session(profile_name="CrosschatPolly")
 polly = session.client("polly")
-speech = polly.synthesize_speech(Text="Hello World", OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
-greetings = ["Hello", "Greetings", "Hi", "Howdy", "Welcome", "Hey", "Hi-ya", "How are you", "How goes it", "Howdy-do", "What's happening", "What's up", "Uh-oh, it's"]
-farewells = ["Goodbye", "Bye", "Bye-bye", "Godspeed", "So long", "Farewell", "See ya later"]
+greetings = ["Hello", "Greetings", "Hi", "Howdy", "Welcome", "Hey", "Hi-ya", "How are you", "How goes it", "Howdy-do", "What's happening", "What's up", "Uh-oh, it's", "Hi... oh it's just you,", "State your business", "Warm wishes to you", "Hey there", "Salutations", "Wazzup", "King's honor", "What brings you here", "Strength and honor", "I've been expecting you", "Eh there"]
+farewells = ["Goodbye", "Bye", "Bye-bye", "Godspeed", "So long", "Farewell", "See ya later", "See you", "Stay the course", "Safe journey", "Watch yer back", "Be seeing you", "Keep it real", "Go with honor", "May the stars guide you", "May your blades never dull", "Go in peace", "Stay away from the Voodoo"]
+speech_lock = asyncio.Lock()
 
 
 # noinspection PyBroadException
@@ -71,33 +71,35 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
             if messages:
                 push_all(settings.load()['discord'][webhook_url_option], messages, channel)
             if channel == "guild" and voice_client.is_connected():
-                path = "sounds/text.mp3"
                 for message in messages:
-                    while voice_client.is_playing():
-                        await asyncio.sleep(0.1)
-                    text = str(message.player + " says: " + message.raw)
-                    speech = None
-                    try:
-                        speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
-                    except (BotoCoreError, ClientError) as error:
-                        LOG.error(error)
-                    if speech is not None:
-                        with closing(speech["AudioStream"]) as stream:
-                            with open(path, "wb") as file:
-                                file.write(stream.read())
-                        await asyncio.sleep(0.1)
-                        await playWithRetry(voice_client, path)
+                    await play_with_retry(message.player + " says: " + message.raw, "sounds/text.mp3", "Justin")
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
         await send_exception(e, bot)
 
 
-async def playWithRetry(voice_client, path):
+async def play_with_retry(text, path, voice):
+    await speech_lock.acquire()
     try:
-        voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=path))
-    except ClientException as error:
-        await asyncio.sleep(0.1)
-        await playWithRetry(voice_client, path)
+        speech = None
+        try:
+            speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId=voice, Engine="neural")
+        except (BotoCoreError, ClientError) as error:
+            LOG.error(error)
+        if speech is not None:
+            while voice_client.is_playing():
+                await asyncio.sleep(0.1)
+            with closing(speech["AudioStream"]) as stream:
+                with open(path, "wb") as file:
+                    file.write(stream.read())
+            await asyncio.sleep(0.1)
+            try:
+                voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=path))
+            except ClientException:
+                await asyncio.sleep(1)
+                await play_with_retry(voice_client, path)
+    finally:
+        speech_lock.release()
 
 
 def get_chat_log_messages(chat_log_file_option, starting_key, channel):
@@ -264,43 +266,19 @@ async def on_ready():
 
 @bot.event
 async def on_voice_state_update(member, before, after):
+
     global voice_client
     global greetings
     global farewells
+    name = member.nick
+    if name is None:
+        name = member.name
     if voice_client is not None and voice_client.is_connected():
         channel = int(settings.load()['discord']['guild_general_voice_channel_id'])
         if (before.channel is None or before.channel.id != channel) and after.channel is not None and after.channel.id == channel:
-            await acknowledge_member("hello", member)
+            await play_with_retry(random.choice(greetings) + " " + name + "!", "sounds/hello.mp3", "Matthew")
         if (before.channel is not None and before.channel.id == channel) and (after.channel is None or after.channel.id != channel):
-            await acknowledge_member("goodbye", member)
-
-
-async def acknowledge_member(type, member):
-    global greetings
-    global farewells
-    name = member.nick
-    speech = None
-    if name is None:
-        name = member.name
-    if type == "hello":
-        text = str(random.choice(greetings) + " " + name + "!")
-        try:
-            speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
-        except (BotoCoreError, ClientError) as error:
-            LOG.error(error)
-    else:
-        text = str(random.choice(farewells) + " " + name + "!")
-        try:
-            speech = polly.synthesize_speech(Text=text, OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
-        except (BotoCoreError, ClientError) as error:
-            LOG.error(error)
-    if speech is not None:
-        while voice_client.is_playing():
-            await asyncio.sleep(0.1)
-        with closing(speech["AudioStream"]) as stream:
-            with open("sounds/"+type+".mp3", "wb") as file:
-                file.write(stream.read())
-        await playWithRetry(voice_client, "sounds/" + type + ".mp3")
+            await play_with_retry(random.choice(farewells) + " " + name + "!", "sounds/goodbye.mp3", "Matthew")
 
 
 @bot.event

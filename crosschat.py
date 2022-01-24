@@ -14,7 +14,7 @@ from contextlib import closing
 from botocore.exceptions import BotoCoreError, ClientError
 
 import discord
-from discord import HTTPException
+from discord import HTTPException, ClientException
 from discord.ext import commands
 from discord_slash import SlashCommand, SlashContext
 from discord_slash.model import SlashCommandPermissionType, SlashCommandOptionType
@@ -51,6 +51,7 @@ slash = SlashCommand(bot, sync_commands=True)
 voice_client = None
 session = Session(profile_name="CrosschatPolly")
 polly = session.client("polly")
+speech = polly.synthesize_speech(Text="Hello World", OutputFormat="mp3", VoiceId="Takumi", Engine="neural")
 greetings = ["Hello", "Greetings", "Hi", "Howdy", "Welcome", "Hey", "Hi-ya", "How are you", "How goes it", "Howdy-do", "What's happening", "What's up", "Uh-oh, it's"]
 farewells = ["Goodbye", "Bye", "Bye-bye", "Godspeed", "So long", "Farewell", "See ya later"]
 
@@ -85,10 +86,18 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
                             with open(path, "wb") as file:
                                 file.write(stream.read())
                         await asyncio.sleep(0.1)
-                        voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=path))
+                        await playWithRetry(voice_client, path)
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
     except Exception as e:
         await send_exception(e, bot)
+
+
+async def playWithRetry(voice_client, path):
+    try:
+        voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=path))
+    except ClientException as error:
+        await asyncio.sleep(0.1)
+        await playWithRetry(voice_client, path)
 
 
 def get_chat_log_messages(chat_log_file_option, starting_key, channel):
@@ -291,7 +300,7 @@ async def acknowledge_member(type, member):
         with closing(speech["AudioStream"]) as stream:
             with open("sounds/"+type+".mp3", "wb") as file:
                 file.write(stream.read())
-        voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source="sounds/" + type + ".mp3"))
+        await playWithRetry(voice_client, "sounds/" + type + ".mp3")
 
 
 @bot.event

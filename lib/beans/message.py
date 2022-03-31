@@ -78,57 +78,49 @@ def replace_mentions(line: str) -> str:
     return line
 
 
+def replace_raidmark(mark: str, line: str, phonetic: bool) -> str:
+    """Replaces World of Warcraft raid marker found in the string with corresponding Discord emojis"""
+    if phonetic:
+        return re.sub(constants.RAIDMARKS[mark], mark, line, flags=re.IGNORECASE)
+    else:
+        return re.sub(constants.RAIDMARKS[mark], settings.load()['discord'][mark + '_emoji'], line, flags=re.IGNORECASE)
+
+
 def replace_raidmarks(line: str, phonetic: bool) -> str:
     """Replaces World of Warcraft raid markers found in the string with corresponding Discord emojis"""
     debug = 'Mutating(raidmarks): '
-    if constants.SKULL in line:
+    if constants.SKULL in line.lower():
         LOG.debug(debug + line)
-        if phonetic:
-            line = line.replace(constants.SKULL, "skull")
-        else:
-            line = line.replace(constants.SKULL, settings.load()['discord']['skull_emoji'])
-    if constants.CROSS in line:
+        mark = 'skull'
+        line = replace_raidmark(mark, line, phonetic)
+    if constants.CROSS in line.lower():
         LOG.debug(debug + line)
-        if phonetic:
-            line = line.replace(constants.CROSS, "cross")
-        else:
-            line = line.replace(constants.CROSS, settings.load()['discord']['cross_emoji'])
-    if constants.SQUARE in line:
+        mark = 'cross'
+        line = replace_raidmark(mark, line, phonetic)
+    if constants.SQUARE in line.lower():
         LOG.debug(debug + line)
-        if phonetic:
-            line = line.replace(constants.SQUARE, "square")
-        else:
-            line = line.replace(constants.SQUARE, settings.load()['discord']['square_emoji'])
-    if constants.MOON in line:
+        mark = 'square'
+        line = replace_raidmark(mark, line, phonetic)
+    if constants.MOON in line.lower():
         LOG.debug(debug + line)
-        if phonetic:
-            line = line.replace(constants.MOON, "moon")
-        else:
-            line = line.replace(constants.MOON, settings.load()['discord']['moon_emoji'])
-    if constants.TRIANGLE in line:
+        mark = 'moon'
+        line = replace_raidmark(mark, line, phonetic)
+    if constants.TRIANGLE in line.lower():
         LOG.debug(debug + line)
-        if phonetic:
-            line = line.replace(constants.TRIANGLE, "triangle")
-        else:
-            line = line.replace(constants.TRIANGLE, settings.load()['discord']['triangle_emoji'])
-    if constants.DIAMOND in line:
+        mark = 'triangle'
+        line = replace_raidmark(mark, line, phonetic)
+    if constants.DIAMOND in line.lower():
         LOG.debug(debug + line)
-        if phonetic:
-            line = line.replace(constants.DIAMOND, "diamond")
-        else:
-            line = line.replace(constants.DIAMOND, settings.load()['discord']['diamond_emoji'])
-    if constants.CIRCLE in line:
+        mark = 'diamond'
+        line = replace_raidmark(mark, line, phonetic)
+    if constants.CIRCLE in line.lower():
         LOG.debug(debug + line)
-        if phonetic:
-            line = line.replace(constants.CIRCLE, "circle")
-        else:
-            line = line.replace(constants.CIRCLE, settings.load()['discord']['circle_emoji'])
-    if constants.STAR in line:
+        mark = 'circle'
+        line = replace_raidmark(mark, line, phonetic)
+    if constants.STAR in line.lower():
         LOG.debug(debug + line)
-        if phonetic:
-            line = line.replace(constants.STAR, "star")
-        else:
-            line = line.replace(constants.STAR, settings.load()['discord']['star_emoji'])
+        mark = 'star'
+        line = replace_raidmark(mark, line, phonetic)
     return line
 
 

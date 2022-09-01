@@ -153,7 +153,7 @@ def replace_talent_patterns(line: str, phonetic: bool) -> str:
     if phonetic:
         return replace_pattern('Mutating(talent_patterns): ', constants.TALENT_PHONETIC_PATTERN, line, constants.TALENT_PHONETIC_REPLACE_REGEX, None)
     else:
-        return replace_pattern('Mutating(talent_patterns): ', constants.TALENT_PATTERN, line, constants.TALENT_REPLACE_REGEX, constants.WOWHEAD_SPELL_URL)
+        return replace_pattern('Mutating(talent_patterns): ', constants.TALENT_PATTERN, line, constants.TALENT_REPLACE_REGEX, None)
 
 
 def replace_achievement_patterns(line: str, phonetic: bool) -> str:

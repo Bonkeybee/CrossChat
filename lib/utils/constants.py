@@ -21,7 +21,7 @@ SPELL_PATTERN = re.compile('.*' + SPELL_REPLACE_REGEX + '.*')
 SPELL_PHONETIC_REPLACE_REGEX = '\|(.+Hspell:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\].+)\|r'
 SPELL_PHONETIC_PATTERN = re.compile('.*' + SPELL_PHONETIC_REPLACE_REGEX + '.*')
 
-TALENT_REPLACE_REGEX = '\|(.+Htalent:([0-9]+).+)\|r'
+TALENT_REPLACE_REGEX = '\|(.+Htalent:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\]).+)\|r'
 TALENT_PATTERN = re.compile('.*' + TALENT_REPLACE_REGEX + '.*')
 TALENT_PHONETIC_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\].+)\|r'
 TALENT_PHONETIC_PATTERN = re.compile('.*' + TALENT_PHONETIC_REPLACE_REGEX + '.*')

@@ -21,12 +21,12 @@ SPELL_PATTERN = re.compile('.*' + SPELL_REPLACE_REGEX + '.*')
 SPELL_PHONETIC_REPLACE_REGEX = '\|(.+Hspell:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\].+)\|r'
 SPELL_PHONETIC_PATTERN = re.compile('.*' + SPELL_PHONETIC_REPLACE_REGEX + '.*')
 
-TALENT_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+(\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\]).+)\|r'
+TALENT_REPLACE_REGEX = '\|(.+Hspell:([0-9]+).+)\|r'
 TALENT_PATTERN = re.compile('.*' + TALENT_REPLACE_REGEX + '.*')
 TALENT_PHONETIC_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\].+)\|r'
 TALENT_PHONETIC_PATTERN = re.compile('.*' + TALENT_PHONETIC_REPLACE_REGEX + '.*')
 
-ACHIEVEMENT_REPLACE_REGEX = '\|(.+Hachievement:[0-9]+.+(\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\]).+)\|r'
+ACHIEVEMENT_REPLACE_REGEX = '\|(.+Hachievement:([0-9]+).+)\|r'
 ACHIEVEMENT_PATTERN = re.compile('.*' + ACHIEVEMENT_REPLACE_REGEX + '.*')
 ACHIEVEMENT_PHONETIC_REPLACE_REGEX = '\|(.+Hachievement:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\].+)\|r'
 ACHIEVEMENT_PHONETIC_PATTERN = re.compile('.*' + ACHIEVEMENT_PHONETIC_REPLACE_REGEX + '.*')
@@ -68,7 +68,9 @@ PVP_REGEX = group('pvp|arena|battlegrounds*')
 DUNGEON_REGEX_VANILLA = 'rfc|wc|vc|dm|deadmines*|sfk|bfd|blackfathom|depths|stockades*|stocks*|gnomer|gnomeregan|rfk|sm|scarlet|monastery|rfd|razorfen|downs|uld|ulda|uldaman|zf|zulfarrak|zul|farrak|mara|maraudon|princess|st|sunken|temple|brd|lbrs|ubrs|dme|dmw|dmn|dire|diremaul|scholo|scolo|scholomance|strat|strath|stratholme|dungeon'
 RAID_REGEX_VANILLA = 'mc|molten|ony|onyxia|onyxia lair|zg|zul|gurub|bwl|blackwing|aq|ahn\'qirah|aq20|aq40|naxx|naxxramas|raid'
 DUNGEON_REGEX_TBC = 'hr|hfr|ramps*|ramparts*|bf|blood|furnace|sh|shattered|halls*|citadel|sp|slave|pens*|slavepens*|ub|underbog|sv|steamvaults*|steam vaults*|cfr|mt|mana|tombs*|ac|crypts*|seth|sethekk*|halls*|sl|shadow|labs*|shadowlabs*|slabs*|bm|black|morass|blackmorass|oh|ohb|dh|dk|ohf|durn|old|hillsbrad|foothills*|arc|arcatraz|bot|botanica|mech|mechanar|mgt|mrt|magisters*|terrace'
-RAID_REGEX_TBC = 'kara|karazhan|gruul|gruuls|gruul\'s*|mag|matheridons|magtheridon\'s*|za|zulaman|zul\'aman|ssc|tk|bt|hyjal'
+RAID_REGEX_TBC = 'kara|karazhan|gruul|gruuls*|gruul\'s*|mag|magtheridons*|magtheridon\'s*|za|zulaman|zul\'aman|ssc|tk|bt|hyjal|sunwell|swp'
+DUNGEON_REGEX_WOTLK = ''
+RAID_REGEX_WOTLK = ''
 DUNGEON_REGEX = group(DUNGEON_REGEX_VANILLA + OR + RAID_REGEX_VANILLA + OR + DUNGEON_REGEX_TBC + OR + RAID_REGEX_TBC)
 BOOST_REGEX = group('wtb|wts|boosts*|gdkp')
 RECRUIT_REGEX = group('recruit|recruiting')
@@ -110,6 +112,7 @@ RAIDMARKS = {'skull': SKULL, 'cross': CROSS, 'square': SQUARE, 'moon': MOON, 'tr
 
 WOWHEAD_ITEM_URL = 'https://wowhead.com/wotlk/item='
 WOWHEAD_SPELL_URL = 'https://wowhead.com/wotlk/spell='
+WOWHEAD_ACHIEVEMENT_URL = 'https://www.wowhead.com/wotlk/achievement='
 TIMESTAMP_FILE = 'lastTimestamp.txt'
 
 CONFIG_FILE = 'config\config.ini'

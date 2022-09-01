@@ -8,32 +8,32 @@ RESTART_PATTERN = re.compile('!restart')
 
 ITEM_REPLACE_REGEX = '\|(.+Hitem:([0-9]+).+)\|r'
 ITEM_PATTERN = re.compile('.*' + ITEM_REPLACE_REGEX + '.*')
-ITEM_PHONETIC_REPLACE_REGEX = '\|(.+Hitem:[0-9]+.+\[([a-zA-Z\',\:\-\. ]+)\].+)\|r'
+ITEM_PHONETIC_REPLACE_REGEX = '\|(.+Hitem:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\. ]+)\].+)\|r'
 ITEM_PHONETIC_PATTERN = re.compile('.*' + ITEM_PHONETIC_REPLACE_REGEX + '.*')
 
 ENCHANT_REPLACE_REGEX = '\|(.+Henchant:([0-9]+).+)\|r'
 ENCHANT_PATTERN = re.compile('.*' + ENCHANT_REPLACE_REGEX + '.*')
-ENCHANT_PHONETIC_REPLACE_REGEX = '\|(.+Henchant:[0-9]+.+\[([a-zA-Z\',\:\- ]+)\].+)\|r'
+ENCHANT_PHONETIC_REPLACE_REGEX = '\|(.+Henchant:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\. ]+)\].+)\|r'
 ENCHANT_PHONETIC_PATTERN = re.compile('.*' + ENCHANT_PHONETIC_REPLACE_REGEX + '.*')
 
 SPELL_REPLACE_REGEX = '\|(.+Hspell:([0-9]+).+)\|r'
 SPELL_PATTERN = re.compile('.*' + SPELL_REPLACE_REGEX + '.*')
-SPELL_PHONETIC_REPLACE_REGEX = '\|(.+Hspell:[0-9]+.+\[([a-zA-Z\',\:\- ]+)\].+)\|r'
+SPELL_PHONETIC_REPLACE_REGEX = '\|(.+Hspell:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\. ]+)\].+)\|r'
 SPELL_PHONETIC_PATTERN = re.compile('.*' + SPELL_PHONETIC_REPLACE_REGEX + '.*')
 
-TALENT_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+(\[[a-zA-Z ]+\]).+)\|r'
+TALENT_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+(\[([a-zA-Z0-9\/\',\:\-\. ]+)\]).+)\|r'
 TALENT_PATTERN = re.compile('.*' + TALENT_REPLACE_REGEX + '.*')
-TALENT_PHONETIC_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+\[([a-zA-Z\',\:\- ]+)\].+)\|r'
+TALENT_PHONETIC_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\. ]+)\].+)\|r'
 TALENT_PHONETIC_PATTERN = re.compile('.*' + TALENT_PHONETIC_REPLACE_REGEX + '.*')
 
-ACHIEVEMENT_REPLACE_REGEX = '\|(.+Hachievement:[0-9]+.+(\[[a-zA-Z ]+\]).+)\|r'
+ACHIEVEMENT_REPLACE_REGEX = '\|(.+Hachievement:[0-9]+.+(\[([a-zA-Z0-9\/\',\:\-\. ]+)\]).+)\|r'
 ACHIEVEMENT_PATTERN = re.compile('.*' + ACHIEVEMENT_REPLACE_REGEX + '.*')
-ACHIEVEMENT_PHONETIC_REPLACE_REGEX = '\|(.+Hachievement:[0-9]+.+\[([a-zA-Z\',\:\- ]+)\].+)\|r'
+ACHIEVEMENT_PHONETIC_REPLACE_REGEX = '\|(.+Hachievement:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\. ]+)\].+)\|r'
 ACHIEVEMENT_PHONETIC_PATTERN = re.compile('.*' + ACHIEVEMENT_PHONETIC_REPLACE_REGEX + '.*')
 
-PROFESSION_REPLACE_REGEX = '\|(.+Htrade:[0-9]+.+(\[[a-zA-Z ]+\]).+)\|r'
+PROFESSION_REPLACE_REGEX = '\|(.+Htrade:.+(\[([a-zA-Z0-9\/\',\:\-\. ]+)\]).+)\|r'
 PROFESSION_PATTERN = re.compile('.*' + PROFESSION_REPLACE_REGEX + '.*')
-PROFESSION_PHONETIC_REPLACE_REGEX = '\|(.+Htrade:[0-9]+.+\[([a-zA-Z\',\:\- ]+)\].+)\|r'
+PROFESSION_PHONETIC_REPLACE_REGEX = '\|(.+Htrade:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\. ]+)\].+)\|r'
 PROFESSION_PHONETIC_PATTERN = re.compile('.*' + PROFESSION_PHONETIC_REPLACE_REGEX + '.*')
 
 
@@ -108,8 +108,8 @@ CIRCLE = '{circle}'
 STAR = '{star}'
 RAIDMARKS = {'skull': SKULL, 'cross': CROSS, 'square': SQUARE, 'moon': MOON, 'triangle': TRIANGLE, 'diamond': DIAMOND, 'circle': CIRCLE, 'star': STAR}
 
-WOWHEAD_ITEM_URL = 'https://tbc.wowhead.com/item='
-WOWHEAD_SPELL_URL = 'https://tbc.wowhead.com/spell='
+WOWHEAD_ITEM_URL = 'https://wowhead.com/wotlk/item='
+WOWHEAD_SPELL_URL = 'https://wowhead.com/wotlk/spell='
 TIMESTAMP_FILE = 'lastTimestamp.txt'
 
 CONFIG_FILE = 'config\config.ini'

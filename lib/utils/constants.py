@@ -26,6 +26,16 @@ TALENT_PATTERN = re.compile('.*' + TALENT_REPLACE_REGEX + '.*')
 TALENT_PHONETIC_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+\[([a-zA-Z\',\:\- ]+)\].+)\|r'
 TALENT_PHONETIC_PATTERN = re.compile('.*' + TALENT_PHONETIC_REPLACE_REGEX + '.*')
 
+ACHIEVEMENT_REPLACE_REGEX = '\|(.+Hachievement:[0-9]+.+(\[[a-zA-Z ]+\]).+)\|r'
+ACHIEVEMENT_PATTERN = re.compile('.*' + ACHIEVEMENT_REPLACE_REGEX + '.*')
+ACHIEVEMENT_PHONETIC_REPLACE_REGEX = '\|(.+Hachievement:[0-9]+.+\[([a-zA-Z\',\:\- ]+)\].+)\|r'
+ACHIEVEMENT_PHONETIC_PATTERN = re.compile('.*' + ACHIEVEMENT_PHONETIC_REPLACE_REGEX + '.*')
+
+PROFESSION_REPLACE_REGEX = '\|(.+Htrade:[0-9]+.+(\[[a-zA-Z ]+\]).+)\|r'
+PROFESSION_PATTERN = re.compile('.*' + PROFESSION_REPLACE_REGEX + '.*')
+PROFESSION_PHONETIC_REPLACE_REGEX = '\|(.+Htrade:[0-9]+.+\[([a-zA-Z\',\:\- ]+)\].+)\|r'
+PROFESSION_PHONETIC_PATTERN = re.compile('.*' + PROFESSION_PHONETIC_REPLACE_REGEX + '.*')
+
 
 def group(regex):
     """Wraps the regex as a group"""

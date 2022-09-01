@@ -17,8 +17,8 @@ class Message:
     def __init__(self, timestamp, player, line):
         self.timestamp = timestamp
         self.player = player.encode("UTF-8", "ignore").decode("UTF-8", "ignore")
-        self.line = replace_talent_patterns(replace_spell_patterns(replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_mentions(replace_escape_sequences(line, False)), False), False), False), False), False).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
-        self.raw = replace_talent_patterns(replace_spell_patterns(replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_escape_sequences(line, True), True), True), True), True), True).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
+        self.line = replace_profession_patterns(replace_achievement_patterns(replace_talent_patterns(replace_spell_patterns(replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_mentions(replace_escape_sequences(line, False)), False), False), False), False), False), False), False).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
+        self.raw = replace_profession_patterns(replace_achievement_patterns(replace_talent_patterns(replace_spell_patterns(replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_escape_sequences(line, True), True), True), True), True), True), True), False).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
 
     def __lt__(self, other) -> bool:
         if type(other) is Message:
@@ -125,7 +125,7 @@ def replace_raidmarks(line: str, phonetic: bool) -> str:
 
 
 def replace_item_patterns(line: str, phonetic: bool) -> str:
-    """Replaces World of Warcraft item patterns with wowhead.com urls"""
+    """Replaces World of Warcraft item patterns with plaintext or wowhead.com urls"""
     if phonetic:
         return replace_pattern('Mutating(item_patterns): ', constants.ITEM_PHONETIC_PATTERN, line, constants.ITEM_PHONETIC_REPLACE_REGEX, None)
     else:
@@ -133,7 +133,7 @@ def replace_item_patterns(line: str, phonetic: bool) -> str:
 
 
 def replace_enchant_patterns(line: str, phonetic: bool) -> str:
-    """Replaces World of Warcraft enchant patterns with wowhead.com urls"""
+    """Replaces World of Warcraft enchant patterns with plaintext or wowhead.com urls"""
     if phonetic:
         return replace_pattern('Mutating(enchant_patterns): ', constants.ENCHANT_PHONETIC_PATTERN, line, constants.ENCHANT_PHONETIC_REPLACE_REGEX, None)
     else:
@@ -141,7 +141,7 @@ def replace_enchant_patterns(line: str, phonetic: bool) -> str:
 
 
 def replace_spell_patterns(line: str, phonetic: bool) -> str:
-    """Replaces World of Warcraft enchant patterns with wowhead.com urls"""
+    """Replaces World of Warcraft spell patterns with plaintext or wowhead.com urls"""
     if phonetic:
         return replace_pattern('Mutating(spell_patterns): ', constants.SPELL_PHONETIC_PATTERN, line, constants.SPELL_PHONETIC_REPLACE_REGEX, None)
     else:
@@ -149,11 +149,27 @@ def replace_spell_patterns(line: str, phonetic: bool) -> str:
 
 
 def replace_talent_patterns(line: str, phonetic: bool) -> str:
-    """Replaces World of Warcraft enchant patterns with wowhead.com urls"""
+    """Replaces World of Warcraft talent patterns with plaintext or wowhead.com urls"""
     if phonetic:
         return replace_pattern('Mutating(talent_patterns): ', constants.TALENT_PHONETIC_PATTERN, line, constants.TALENT_PHONETIC_REPLACE_REGEX, None)
     else:
         return replace_pattern('Mutating(talent_patterns): ', constants.TALENT_PATTERN, line, constants.TALENT_REPLACE_REGEX, None)
+
+
+def replace_achievement_patterns(line: str, phonetic: bool) -> str:
+    """Replaces World of Warcraft achievement patterns with plaintext or wowhead.com urls"""
+    if phonetic:
+        return replace_pattern('Mutating(achievement_patterns): ', constants.ACHIEVEMENT_PHONETIC_PATTERN, line, constants.ACHIEVEMENT_PHONETIC_REPLACE_REGEX, None)
+    else:
+        return replace_pattern('Mutating(achievement_patterns): ', constants.ACHIEVEMENT_PATTERN, line, constants.ACHIEVEMENT_REPLACE_REGEX, None)
+
+
+def replace_profession_patterns(line: str, phonetic: bool) -> str:
+    """Replaces World of Warcraft profession patterns with plaintext or wowhead.com urls"""
+    if phonetic:
+        return replace_pattern('Mutating(profession_patterns): ', constants.PROFESSION_PHONETIC_PATTERN, line, constants.PROFESSION_PHONETIC_REPLACE_REGEX, None)
+    else:
+        return replace_pattern('Mutating(profession_patterns): ', constants.PROFESSION_PATTERN, line, constants.PROFESSION_REPLACE_REGEX, None)
 
 
 def replace_pattern(debug, pattern, line, regex, url):

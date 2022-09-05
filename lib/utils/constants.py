@@ -36,6 +36,11 @@ PROFESSION_PATTERN = re.compile('.*' + PROFESSION_REPLACE_REGEX + '.*')
 PROFESSION_PHONETIC_REPLACE_REGEX = '\|(.+Htrade:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\].+)\|r'
 PROFESSION_PHONETIC_PATTERN = re.compile('.*' + PROFESSION_PHONETIC_REPLACE_REGEX + '.*')
 
+GLYPH_REPLACE_REGEX = '\|(.+Hglyph:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\]).+)\|r'
+GLYPH_PATTERN = re.compile('.*' + GLYPH_REPLACE_REGEX + '.*')
+GLYPH_PHONETIC_REPLACE_REGEX = '\|(.+Hglyph:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\].+)\|r'
+GLYPH_PHONETIC_PATTERN = re.compile('.*' + GLYPH_PHONETIC_REPLACE_REGEX + '.*')
+
 
 def group(regex):
     """Wraps the regex as a group"""

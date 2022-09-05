@@ -17,8 +17,8 @@ class Message:
     def __init__(self, timestamp, player, line):
         self.timestamp = timestamp
         self.player = player.encode("UTF-8", "ignore").decode("UTF-8", "ignore")
-        self.line = replace_profession_patterns(replace_achievement_patterns(replace_talent_patterns(replace_spell_patterns(replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_mentions(replace_escape_sequences(line, False)), False), False), False), False), False), False), False).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
-        self.raw = replace_profession_patterns(replace_achievement_patterns(replace_talent_patterns(replace_spell_patterns(replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_escape_sequences(line, True), True), True), True), True), True), True), False).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
+        self.line = replace_glyph_patterns(replace_profession_patterns(replace_achievement_patterns(replace_talent_patterns(replace_spell_patterns(replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_mentions(replace_escape_sequences(line, False)), False), False), False), False), False), False), False), False).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
+        self.raw = replace_glyph_patterns(replace_profession_patterns(replace_achievement_patterns(replace_talent_patterns(replace_spell_patterns(replace_enchant_patterns(replace_item_patterns(replace_raidmarks(replace_escape_sequences(line, True), True), True), True), True), True), True), True), True).encode("UTF-8", "ignore").decode("UTF-8", "ignore")
 
     def __lt__(self, other) -> bool:
         if type(other) is Message:
@@ -170,6 +170,14 @@ def replace_profession_patterns(line: str, phonetic: bool) -> str:
         return replace_pattern('Mutating(profession_patterns): ', constants.PROFESSION_PHONETIC_PATTERN, line, constants.PROFESSION_PHONETIC_REPLACE_REGEX, None)
     else:
         return replace_pattern('Mutating(profession_patterns): ', constants.PROFESSION_PATTERN, line, constants.PROFESSION_REPLACE_REGEX, None)
+
+
+def replace_glyph_patterns(line: str, phonetic: bool) -> str:
+    """Replaces World of Warcraft glyph patterns with plaintext or wowhead.com urls"""
+    if phonetic:
+        return replace_pattern('Mutating(glyph_patterns): ', constants.GLYPH_PHONETIC_PATTERN, line, constants.GLYPH_PHONETIC_REPLACE_REGEX, None)
+    else:
+        return replace_pattern('Mutating(glyph_patterns): ', constants.GLYPH_PATTERN, line, constants.GLYPH_REPLACE_REGEX, None)
 
 
 def replace_pattern(debug, pattern, line, regex, url):

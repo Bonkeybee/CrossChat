@@ -8,37 +8,37 @@ RESTART_PATTERN = re.compile('!restart')
 
 ITEM_REPLACE_REGEX = '\|(.+Hitem:([0-9]+).+)\|r'
 ITEM_PATTERN = re.compile('.*' + ITEM_REPLACE_REGEX + '.*')
-ITEM_PHONETIC_REPLACE_REGEX = '\|(.+Hitem:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\].+)\|r'
+ITEM_PHONETIC_REPLACE_REGEX = '\|(.+Hitem:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\].+)\|r'
 ITEM_PHONETIC_PATTERN = re.compile('.*' + ITEM_PHONETIC_REPLACE_REGEX + '.*')
 
 ENCHANT_REPLACE_REGEX = '\|(.+Henchant:([0-9]+).+)\|r'
 ENCHANT_PATTERN = re.compile('.*' + ENCHANT_REPLACE_REGEX + '.*')
-ENCHANT_PHONETIC_REPLACE_REGEX = '\|(.+Henchant:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\].+)\|r'
+ENCHANT_PHONETIC_REPLACE_REGEX = '\|(.+Henchant:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\].+)\|r'
 ENCHANT_PHONETIC_PATTERN = re.compile('.*' + ENCHANT_PHONETIC_REPLACE_REGEX + '.*')
 
 SPELL_REPLACE_REGEX = '\|(.+Hspell:([0-9]+).+)\|r'
 SPELL_PATTERN = re.compile('.*' + SPELL_REPLACE_REGEX + '.*')
-SPELL_PHONETIC_REPLACE_REGEX = '\|(.+Hspell:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\].+)\|r'
+SPELL_PHONETIC_REPLACE_REGEX = '\|(.+Hspell:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\].+)\|r'
 SPELL_PHONETIC_PATTERN = re.compile('.*' + SPELL_PHONETIC_REPLACE_REGEX + '.*')
 
-TALENT_REPLACE_REGEX = '\|(.+Htalent:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\]).+)\|r'
+TALENT_REPLACE_REGEX = '\|(.+Htalent:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\]).+)\|r'
 TALENT_PATTERN = re.compile('.*' + TALENT_REPLACE_REGEX + '.*')
-TALENT_PHONETIC_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\].+)\|r'
+TALENT_PHONETIC_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\].+)\|r'
 TALENT_PHONETIC_PATTERN = re.compile('.*' + TALENT_PHONETIC_REPLACE_REGEX + '.*')
 
 ACHIEVEMENT_REPLACE_REGEX = '\|(.+Hachievement:([0-9]+).+)\|r'
 ACHIEVEMENT_PATTERN = re.compile('.*' + ACHIEVEMENT_REPLACE_REGEX + '.*')
-ACHIEVEMENT_PHONETIC_REPLACE_REGEX = '\|(.+Hachievement:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\].+)\|r'
+ACHIEVEMENT_PHONETIC_REPLACE_REGEX = '\|(.+Hachievement:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\].+)\|r'
 ACHIEVEMENT_PHONETIC_PATTERN = re.compile('.*' + ACHIEVEMENT_PHONETIC_REPLACE_REGEX + '.*')
 
-PROFESSION_REPLACE_REGEX = '\|(.+Htrade:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\]).+)\|r'
+PROFESSION_REPLACE_REGEX = '\|(.+Htrade:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\]).+)\|r'
 PROFESSION_PATTERN = re.compile('.*' + PROFESSION_REPLACE_REGEX + '.*')
-PROFESSION_PHONETIC_REPLACE_REGEX = '\|(.+Htrade:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\]).+)\|r'
+PROFESSION_PHONETIC_REPLACE_REGEX = '\|(.+Htrade:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\]).+)\|r'
 PROFESSION_PHONETIC_PATTERN = re.compile('.*' + PROFESSION_PHONETIC_REPLACE_REGEX + '.*')
 
-GLYPH_REPLACE_REGEX = '\|(.+Hglyph:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\]).+)\|r'
+GLYPH_REPLACE_REGEX = '\|(.+Hglyph:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\]).+)\|r'
 GLYPH_PATTERN = re.compile('.*' + GLYPH_REPLACE_REGEX + '.*')
-GLYPH_PHONETIC_REPLACE_REGEX = '\|(.+Hglyph:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\? ]+)\]).+)\|r'
+GLYPH_PHONETIC_REPLACE_REGEX = '\|(.+Hglyph:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\]).+)\|r'
 GLYPH_PHONETIC_PATTERN = re.compile('.*' + GLYPH_PHONETIC_REPLACE_REGEX + '.*')
 
 
@@ -75,7 +75,7 @@ RAID_REGEX_VANILLA = 'mc|molten|ony|onyxia|onyxia lair|zg|zul|gurub|bwl|blackwin
 DUNGEON_REGEX_TBC = 'hr|hfr|ramps*|ramparts*|bf|blood|furnace|sh|shattered|halls*|citadel|sp|slave|pens*|slavepens*|ub|underbog|sv|steamvaults*|steam|vaults*|cfr|mt|mana|tombs*|ac|crypts*|seth|sethekk*|halls*|sl|shadow|labs*|shadowlabs*|slabs*|bm|black|morass|blackmorass|oh|ohb|dh|dk|ohf|durn|old|hillsbrad|foothills*|arc|arcatraz|bot|botanica|mech|mechanar|mgt|mrt|magisters*|terrace'
 RAID_REGEX_TBC = 'kara|karazhan|gruul|gruuls*|gruul\'s*|mag|magtheridons*|magtheridon\'s*|za|zulaman|zul\'aman|ssc|tk|bt|hyjal|sunwell|swp'
 DUNGEON_REGEX_WOTLK = 'uk|utgarde|keep|an|azjol|nerub|ok|ak|ahn\'kahet|ahn|kahet|old|kingdom|nexus*|dtk|dk|drak\'tharon|drak|tharon|vh|violet|hold|gd|gundrak|hos|halls*|stone|hol|lightning|occ|oculus*|up|pinnacle|cos|culling|stratholme|toc|trial|champion|fos|forge|souls*|pos|pit|saron|hor|reflection'
-RAID_REGEX_WOTLK = 'voa|vault|archavon|naxx|naxxramas*|os|obsidian|sanctum|eoe|eye|eternity|uld|ulduar|toc|togc|trial|grand|crusader|ony|onyxia\'s*|onyxia|lair|icc|ic|icecrown|citadel'
+RAID_REGEX_WOTLK = 'voa|vault|archavon|naxx|naxxramas*|os|obsidian|sanctum|eoe|eye|eternity|uld|ulduar|toc|togc|trial|grand|crusader|ony|onyxia\'s*|onyxia|lair|icc|ic|icecrown|citadel|rs|ruby|sanctum'
 DUNGEON_REGEX = group(DUNGEON_REGEX_VANILLA + OR + RAID_REGEX_VANILLA + OR + DUNGEON_REGEX_TBC + OR + RAID_REGEX_TBC + OR + DUNGEON_REGEX_WOTLK + OR + RAID_REGEX_WOTLK)
 BOOST_REGEX = group('wtb|wts|boosts*|gdkp')
 RECRUIT_REGEX = group('recruit|recruiting')

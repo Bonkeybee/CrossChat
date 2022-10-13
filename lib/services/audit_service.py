@@ -5,6 +5,15 @@ import settings
 from lib.services.guild_service import get_guild_members
 
 
+def check_members_for_rank(discord_members) -> str:
+    """Checks if the member rank matches their inferred rank on loot lists"""
+    message = ''
+    game_members = get_guild_members(False)
+    # for game_member in game_members:
+    #     game_member.rank
+    return message
+
+
 def check_discord_members_for_name_in_note(discord_members) -> str:
     """Checks each discord member if they are actually a member"""
     message = ''
@@ -22,8 +31,6 @@ def has_member_role(discord_member):
             return True
     return False
 
-# def check_mains_for_note():
-#     for
 
 def is_discord_member_actual_member(discord_member: Member, game_members):
     """Checks if the discord member username is part of the member"""

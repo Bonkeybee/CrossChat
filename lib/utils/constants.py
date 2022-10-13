@@ -8,37 +8,37 @@ RESTART_PATTERN = re.compile('!restart')
 
 ITEM_REPLACE_REGEX = '\|(.+Hitem:([0-9]+).+)\|r'
 ITEM_PATTERN = re.compile('.*' + ITEM_REPLACE_REGEX + '.*')
-ITEM_PHONETIC_REPLACE_REGEX = '\|(.+Hitem:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\].+)\|r'
+ITEM_PHONETIC_REPLACE_REGEX = '\|(.+Hitem:[0-9]+.+\[([a-zA-Z0-9\&\/\'\",\:\-\.\!\?\(\) ]+)\].+)\|r'
 ITEM_PHONETIC_PATTERN = re.compile('.*' + ITEM_PHONETIC_REPLACE_REGEX + '.*')
 
 ENCHANT_REPLACE_REGEX = '\|(.+Henchant:([0-9]+).+)\|r'
 ENCHANT_PATTERN = re.compile('.*' + ENCHANT_REPLACE_REGEX + '.*')
-ENCHANT_PHONETIC_REPLACE_REGEX = '\|(.+Henchant:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\].+)\|r'
+ENCHANT_PHONETIC_REPLACE_REGEX = '\|(.+Henchant:[0-9]+.+\[([a-zA-Z0-9\&\/\'\",\:\-\.\!\?\(\) ]+)\].+)\|r'
 ENCHANT_PHONETIC_PATTERN = re.compile('.*' + ENCHANT_PHONETIC_REPLACE_REGEX + '.*')
 
 SPELL_REPLACE_REGEX = '\|(.+Hspell:([0-9]+).+)\|r'
 SPELL_PATTERN = re.compile('.*' + SPELL_REPLACE_REGEX + '.*')
-SPELL_PHONETIC_REPLACE_REGEX = '\|(.+Hspell:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\].+)\|r'
+SPELL_PHONETIC_REPLACE_REGEX = '\|(.+Hspell:[0-9]+.+\[([a-zA-Z0-9\&\/\'\",\:\-\.\!\?\(\) ]+)\].+)\|r'
 SPELL_PHONETIC_PATTERN = re.compile('.*' + SPELL_PHONETIC_REPLACE_REGEX + '.*')
 
-TALENT_REPLACE_REGEX = '\|(.+Htalent:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\]).+)\|r'
+TALENT_REPLACE_REGEX = '\|(.+Htalent:.+(\[([a-zA-Z0-9\&\/\'\",\:\-\.\!\?\(\) ]+)\]).+)\|r'
 TALENT_PATTERN = re.compile('.*' + TALENT_REPLACE_REGEX + '.*')
-TALENT_PHONETIC_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\].+)\|r'
+TALENT_PHONETIC_REPLACE_REGEX = '\|(.+Htalent:[0-9]+.+\[([a-zA-Z0-9\&\/\'\",\:\-\.\!\?\(\) ]+)\].+)\|r'
 TALENT_PHONETIC_PATTERN = re.compile('.*' + TALENT_PHONETIC_REPLACE_REGEX + '.*')
 
 ACHIEVEMENT_REPLACE_REGEX = '\|(.+Hachievement:([0-9]+).+)\|r'
 ACHIEVEMENT_PATTERN = re.compile('.*' + ACHIEVEMENT_REPLACE_REGEX + '.*')
-ACHIEVEMENT_PHONETIC_REPLACE_REGEX = '\|(.+Hachievement:[0-9]+.+\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\].+)\|r'
+ACHIEVEMENT_PHONETIC_REPLACE_REGEX = '\|(.+Hachievement:[0-9]+.+\[([a-zA-Z0-9\&\/\'\",\:\-\.\!\?\(\) ]+)\].+)\|r'
 ACHIEVEMENT_PHONETIC_PATTERN = re.compile('.*' + ACHIEVEMENT_PHONETIC_REPLACE_REGEX + '.*')
 
-PROFESSION_REPLACE_REGEX = '\|(.+Htrade:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\]).+)\|r'
+PROFESSION_REPLACE_REGEX = '\|(.+Htrade:.+(\[([a-zA-Z0-9\&\/\'\",\:\-\.\!\?\(\) ]+)\]).+)\|r'
 PROFESSION_PATTERN = re.compile('.*' + PROFESSION_REPLACE_REGEX + '.*')
-PROFESSION_PHONETIC_REPLACE_REGEX = '\|(.+Htrade:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\]).+)\|r'
+PROFESSION_PHONETIC_REPLACE_REGEX = '\|(.+Htrade:.+(\[([a-zA-Z0-9\&\/\'\",\:\-\.\!\?\(\) ]+)\]).+)\|r'
 PROFESSION_PHONETIC_PATTERN = re.compile('.*' + PROFESSION_PHONETIC_REPLACE_REGEX + '.*')
 
-GLYPH_REPLACE_REGEX = '\|(.+Hglyph:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\]).+)\|r'
+GLYPH_REPLACE_REGEX = '\|(.+Hglyph:.+(\[([a-zA-Z0-9\&\/\'\",\:\-\.\!\?\(\) ]+)\]).+)\|r'
 GLYPH_PATTERN = re.compile('.*' + GLYPH_REPLACE_REGEX + '.*')
-GLYPH_PHONETIC_REPLACE_REGEX = '\|(.+Hglyph:.+(\[([a-zA-Z0-9\/\',\:\-\.\!\?\(\) ]+)\]).+)\|r'
+GLYPH_PHONETIC_REPLACE_REGEX = '\|(.+Hglyph:.+(\[([a-zA-Z0-9\&\/\'\",\:\-\.\!\?\(\) ]+)\]).+)\|r'
 GLYPH_PHONETIC_PATTERN = re.compile('.*' + GLYPH_PHONETIC_REPLACE_REGEX + '.*')
 
 

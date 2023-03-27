@@ -1,31 +1,26 @@
 """Handles the discord<->game portion of crosschat"""
 import asyncio
-import atexit
 import logging
+import os
 import re
 import time
 from collections import OrderedDict
+from contextlib import closing
 from http import HTTPStatus
 from os import system
-import os
-from boto3 import Session
-from contextlib import closing
-from botocore.exceptions import BotoCoreError, ClientError
 
 import discord
-from discord import HTTPException, ClientException
-from discord.ext import commands
-from discord_slash import SlashCommand, SlashContext
-from discord_slash.model import SlashCommandPermissionType, SlashCommandOptionType
-from discord_slash.utils.manage_commands import create_option, create_permission
+from boto3 import Session
+from botocore.exceptions import BotoCoreError, ClientError
+from discord import ClientException, HTTPException, app_commands
 from tendo import singleton
 
 import settings
 from lib.beans.message import Message
 from lib.services.audit_service import check_discord_members_for_name_in_note, check_members_for_name_match_and_permissions
-from lib.services.chat_log_service import parse_chat_log, load_chat_log
+from lib.services.chat_log_service import load_chat_log, parse_chat_log
 from lib.services.exception_service import send_exception
-from lib.services.message_service import push_all, add_message, handle_user_message
+from lib.services.message_service import add_message, handle_user_message, push_all
 from lib.services.restart_service import handle_restart
 from lib.services.who_service import detailed_who, simple_who
 from lib.utils import constants
@@ -45,8 +40,9 @@ logging.basicConfig(
 LOG = logging.getLogger(__name__)
 LOG.info("Starting CROSSCHAT...")
 
-bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
-slash = SlashCommand(bot, sync_commands=True)
+intents = discord.Intents.all()
+bot = discord.Client(intents=intents)
+tree = app_commands.CommandTree(bot)
 voice_client = None
 session = Session(profile_name="CrosschatPolly")
 polly = session.client("polly")
@@ -56,18 +52,15 @@ speech_lock = asyncio.Lock()
 # noinspection PyBroadException
 async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channel, webhook_url_option, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns):
     """Reads the World of Warcraft addon chat logs and pushes new messages to the Discord webhook and/or embed"""
-    global voice_client
-    while voice_client is None:
-        await asyncio.sleep(0.1)
+    await wait_until_ready()
     try:
-        await bot.wait_until_ready()
         while True:
             messages = get_chat_log_messages(chat_log_file_option, starting_key, channel)
             if embed_name and embed_channel_id_option and embed_message_id_option:
                 messages = await handle_embed(messages, embed_name, embed_channel_id_option, embed_message_id_option, bad_patterns, good_patterns)
             if messages:
                 push_all(settings.load()['discord'][webhook_url_option], messages, channel)
-            if channel == "guild" and voice_client.is_connected():
+            if channel == "guild" and (await get_voice_client()).is_connected():
                 for message in messages:
                     await play_with_retry(message.player + " says: " + message.raw, "sounds/text.mp3", "Joanna")
             await asyncio.sleep(constants.CHAT_LOG_CYCLE_TIME)
@@ -76,6 +69,7 @@ async def chat_log_to_discord_webhook(chat_log_file_option, starting_key, channe
 
 
 async def play_with_retry(text, path, voice):
+    """Synthesizes text into speech as an audio file and queues it to the audio client stream"""
     await speech_lock.acquire()
     try:
         speech = None
@@ -84,17 +78,17 @@ async def play_with_retry(text, path, voice):
         except (BotoCoreError, ClientError) as error:
             LOG.error(error)
         if speech is not None:
-            while voice_client.is_playing():
+            while (await get_voice_client()).is_playing():
                 await asyncio.sleep(0.1)
             with closing(speech["AudioStream"]) as stream:
                 with open(path, "wb") as file:
                     file.write(stream.read())
             await asyncio.sleep(0.1)
             try:
-                voice_client.play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=path))
+                (await get_voice_client()).play(discord.FFmpegPCMAudio(executable="ffmpeg.exe", source=path))
             except ClientException:
                 await asyncio.sleep(1)
-                await play_with_retry(voice_client, path, voice)
+                await play_with_retry((await get_voice_client()), path, voice)
     finally:
         speech_lock.release()
 
@@ -250,15 +244,39 @@ def add_embed_fields(old_messages, embed):
                 return
 
 
+async def get_voice_client():
+    """Initializes the discord voice client"""
+    global voice_client
+    if voice_client is None:
+        voice_client = await bot.get_channel(int(settings.load()['discord']['guild_general_voice_channel_id'])).connect()
+    return voice_client
+
+
 # DISCORD STUFF
+async def wait_until_ready():
+    """Waits until all aspects of the discord bot is ready"""
+    while voice_client is None:
+        await asyncio.sleep(1)
+    assert(voice_client is not None)
+    while bot is None:
+        await asyncio.sleep(1)
+    assert(bot is not None)
+    await bot.wait_until_ready()
+
+
 @bot.event
 async def on_ready():
     """Indicator for when the bot connects to discord"""
-    global voice_client
+    await get_voice_client()
+    await tree.sync(guild=discord.Object(id=int(settings.load()['discord']['guild_id'])))
     LOG.info(bot.user.name + ' has connected to Discord!')
-    voice_client = await bot.get_channel(int(settings.load()['discord']['guild_general_voice_channel_id'])).connect()
     if not os.path.exists("sounds"):
         os.makedirs("sounds")
+    asyncio.get_running_loop().create_task(chat_log_to_discord_webhook('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url', None, None, None, None, None))
+    asyncio.get_running_loop().create_task(chat_log_to_discord_webhook('officer_chat_log_file', 'OFFICERCHATLOG = {', 'officer', 'officer_chat_webhook_url', None, None, None, None, None))
+    asyncio.get_running_loop().create_task(chat_log_to_discord_webhook('system_chat_log_file', 'SYSTEMCHATLOG = {', 'system', 'system_chat_webhook_url', None, None, None, None, None))
+    asyncio.get_running_loop().create_task(chat_log_to_discord_webhook('lfg_chat_log_file', 'LFGCHATLOG = {', 'lfg', 'lfg_chat_webhook_url', 'LookingForGroup', 'lfg_crosschat_channel_id', 'lfg_embed_message_id', [constants.LAZY_LFG_PATTERN, constants.BOOST_PATTERN, constants.GUILD_PATTERN, constants.RECRUITING_PATTERN], [constants.LFG_PATTERN]))
+    LOG.info('Tasks initialized!')
 
 
 @bot.event
@@ -268,54 +286,59 @@ async def on_message(message):
         await handle_user_message(message)
 
 
-@slash.slash(name="restart", description="restarts crosschat", guild_ids=[int(settings.load()['discord']['guild_id'])])
-@slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['admin_role']), SlashCommandPermissionType.ROLE, True)])
-async def restart(context: SlashContext):
+@tree.command(name="restart", description="Restarts the CROSSCHAT service", guild=discord.Object(id=int(settings.load()['discord']['guild_id'])))
+@app_commands.checks.has_role(int(settings.load()['discord']['admin_role']))
+async def restart(context: discord.Interaction):
     """Restarts the CROSSCHAT service"""
-    await context.send("Restarting CROSSCHAT, standby...")
+    await context.response.send_message("Restarting CROSSCHAT, standby...")
     await handle_restart()
 
 
-@slash.slash(name="audit", description="run a member audit and show the report", guild_ids=[int(settings.load()['discord']['guild_id'])])
-@slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['admin_role']), SlashCommandPermissionType.ROLE, True)])
-async def audit(context: SlashContext):
+@tree.command(name="audit", description="Generates an audit report which contains members with mismatched permissions or names", guild=discord.Object(id=int(settings.load()['discord']['guild_id'])))
+@app_commands.checks.has_role(int(settings.load()['discord']['admin_role']))
+async def audit(context: discord.Interaction):
     """Generates an audit report which contains members with mismatched permissions or names"""
-    await send_temp_message(context, '**Generating Audit Report:** \n')
-    await send_temp_message(context, check_discord_members_for_name_in_note(context.guild.members))
-    await send_temp_message(context, check_members_for_name_match_and_permissions(context.guild.members))
-    await send_temp_message(context, '**Audit Report Complete**')
+    await safe_send_message(context, '**Generating Audit Report:** \n')
+    await safe_send_message(context, check_discord_members_for_name_in_note(context.guild.members))
+    await safe_send_message(context, check_members_for_name_match_and_permissions(context.guild.members))
+    await safe_send_message(context, '**Audit Report Complete**')
 
 
-@slash.slash(name="who", description="shows who is online in the guild", guild_ids=[int(settings.load()['discord']['guild_id'])],
-             options=[
-                 create_option(name="level", description="example: 60", option_type=SlashCommandOptionType.STRING, required=False),
-                 create_option(name="name", description="example: Bonkeybee", option_type=SlashCommandOptionType.STRING, required=False)
-             ])
-@slash.permission(guild_id=int(settings.load()['discord']['guild_id']), permissions=[create_permission(int(settings.load()['discord']['member_role']), SlashCommandPermissionType.ROLE, True)])
-async def who(context: SlashContext, level: str = None, name: str = None):
-    """Generates a who report which contains character data from the game"""
-    if level or name:
-        await send_temp_message(context, detailed_who(level, name))
-    else:
-        await send_temp_message(context, simple_who())
+# @tree.command(name="who", description="Generates a who report which contains character data from the game", guild=discord.Object(id=int(settings.load()['discord']['guild_id'])))
+# @app_commands.checks.has_role(int(settings.load()['discord']['member_role']))
+# @ibot.command(name="who", description="shows who is online in the guild", scope=int(settings.load()['discord']['guild_id']), default_member_permissions=interactions.Permissions.ADMINISTRATOR,
+#               options=[
+#                   interactions.Option(name="level", description="example: 60", type=interactions.OptionType.STRING, required=False),
+#                   interactions.Option(name="name", description="example: Bonkeybee", type=interactions.OptionType.STRING, required=False)
+#               ])
+# async def who(context: discord.Interaction, level: str = None, name: str = None):
+#     """Generates a who report which contains character data from the game"""
+#     if level or name:
+#         await safe_send_message(context, detailed_who(level, name))
+#     else:
+#         await safe_send_message(context, simple_who())
 
 
-async def send_temp_message(context, message):
+async def self_delete(message, duration):
+    """Waits the specified duration and then deletes the discord message"""
+    await asyncio.sleep(duration)
+    await message.delete()
+
+
+async def safe_send_message(context: discord.Interaction, message):
     """Sends a message to discord that auto-deletes after a minute"""
     if len(message) > 0:
         message = message[:constants.DISCORD_MESSAGE_LIMIT - 3] + (message[constants.DISCORD_MESSAGE_LIMIT - 3:] and '...')
-        await context.send(message, delete_after=60)
-
-
-async def on_close():
-    await bot.close()
+        if context.response.is_done():
+            await context.followup.send(message)
+        else:
+            await context.response.send_message(message)
+        return True
+    return False
 
 
 sanity = Message(0, "Player", "LFM N Shattered Halls. Need @Heals. Summons Rdy.PST {Moon}")
 if has_good_pattern(sanity, [constants.LFG_PATTERN]):
-    guildchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('guild_chat_log_file', 'GUILDCHATLOG = {', 'guild', 'guild_chat_webhook_url', None, None, None, None, None))
-    officerchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('officer_chat_log_file', 'OFFICERCHATLOG = {', 'officer', 'officer_chat_webhook_url', None, None, None, None, None))
-    systemchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('system_chat_log_file', 'SYSTEMCHATLOG = {', 'system', 'system_chat_webhook_url', None, None, None, None, None))
-    lfgchat = asyncio.get_event_loop().create_task(chat_log_to_discord_webhook('lfg_chat_log_file', 'LFGCHATLOG = {', 'lfg', 'lfg_chat_webhook_url', 'LookingForGroup', 'lfg_crosschat_channel_id', 'lfg_embed_message_id', [constants.LAZY_LFG_PATTERN, constants.BOOST_PATTERN, constants.GUILD_PATTERN, constants.RECRUITING_PATTERN], [constants.LFG_PATTERN]))
-    discordbot = asyncio.get_event_loop().create_task(bot.run(settings.load()['discord']['token']))
-    atexit.register(on_close)
+    bot.run(settings.load()['discord']['token'])
+else:
+    LOG.error('Failed sanity check!')

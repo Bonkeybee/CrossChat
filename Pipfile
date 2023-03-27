@@ -14,10 +14,12 @@ requests = "*"
 asyncio = "*"
 pynacl = "*"
 pytz = "*"
-discord-py-slash-command = "*"
+discord-py-slash-command = "~=4.2.1"
 graphene = "*"
 boto3 = "*"
 typing-extensions = "*"
+platformdirs = "~=3.2.0"
+nest-asyncio = "*"
 
 [dev-packages]
 
